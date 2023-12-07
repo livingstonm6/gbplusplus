@@ -13,7 +13,8 @@ class Cartridge
 public:
 	std::string filename;
 	std::vector<unsigned char> data;
-
+	u8 cartridge_type{};
+	int size{};
 
 	Cartridge() {}
 	void load_rom(std::string fn);

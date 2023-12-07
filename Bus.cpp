@@ -38,11 +38,17 @@ u8 IORegisters::read(u16 address)
 		break;
 	}*/
 
-	if (address == 0xFF01) {
+	if (address == 0xFF00) {
+		return joypad;
+	}
+	else if (address == 0xFF01) {
 		return serial_data[0];
 	}
 	else if (address == 0xFF02) {
 		return serial_data[1];
+	}
+	else if (address == 0xFF4D) {
+		return 0xFF;
 	}
 	else if (address == 0xFF0F) {
 		return interrupt_flag;
@@ -71,6 +77,9 @@ void IORegisters::write(u16 address, u8 value) {
 	//	break;
 	//}
 
+	//if (address == 0xFF00) {
+	//	joypad = value;
+	//}
 	if (address == 0xFF01) {
 		serial_data[0] = value;
 	}
@@ -91,11 +100,25 @@ void Bus::connect(PPU* p, LCD* l, Cartridge* c, Timer* t) {
 	lcd = l;
 	cartridge = c;
 	timer = t;
+	cartridge_type = static_cast<CartridgeType>(cartridge->cartridge_type);
 }
 
 u8 Bus::read(u16 address) {
-	if (address < 0x8000) {
+	if (address < 0x4000) {
 		return cartridge->read(address);
+	}
+	else if (address < 0x8000) {
+		switch (cartridge_type) {
+		case CT_ROM_ONLY:
+			return cartridge->read(address);
+			break;
+		case CT_MBC1:
+			return cartridge->read(address);
+			break;
+		default:
+			exit(-23);
+		}
+		
 	}
 	else if (address < 0xA000) {
 		return ppu->vram_read(address);
@@ -130,7 +153,7 @@ u8 Bus::read(u16 address) {
 	else if (address <= 0xFF4C) {
 		return lcd->read(address);
 	}
-	else if (address <= 0xFF80) {
+	else if (address < 0xFF80) {
 		return io_reg.read(address);
 	}
 	else if (address == 0xFFFF) {
@@ -149,6 +172,7 @@ u16 Bus::read16(u16 address)
 }
 
 void Bus::write(u16 address, u8 value) {
+
 	if (address < 0x8000) {
 		cartridge->write(address, value);
 	}

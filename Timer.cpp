@@ -26,6 +26,7 @@ void Timer::write(u16 address, u8 value)
 		break;
 	case 0xFF05:
 		tima = value;
+		tima_overflow_count = 0;
 		break;
 	case 0xFF06:
 		tma = value;
@@ -62,9 +63,24 @@ bool Timer::tick()
 	}
 
 	if (timer_update && (tac & (1 << 2))) {
-		tima++;
-		request_interrupt = true;
-
+		
+		if (tima == 0xFF && tima_overflow_count == 0) {
+			tima++;
+			tima_overflow_count++;
+		}
+		else if (tima == 0) {
+			if (tima_overflow_count > 4) {
+				tima = tma;
+				tima_overflow_count = 0;
+				request_interrupt = true;
+			}
+			else {
+				tima_overflow_count++;
+			}
+		}
+		else {
+			tima++;
+		}
 	}
 
 	return request_interrupt;

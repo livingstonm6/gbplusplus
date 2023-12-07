@@ -361,3 +361,25 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/02-interrupts.gb
+/02-interrupts.sav
+/03-op sp,hl.gb
+/03-op sp,hl.sav
+/04-op r,imm.gb
+/05-op rp.gb
+/06-ld r,r.gb
+/07-jr,jp,call,ret,rst.gb
+/08-misc instrs.gb
+/09-op r,r.gb
+/10-bit ops.gb
+/11-op a,(hl).gb
+/mem_timing.gb
+/mario.gb
+/pokemon.gb
+/zelda.gb
+/tetris.gb
+/drmario.gb
+/dmg-acid2.sav
+/dmg-acid2.gb
+/cpu_instrs.sav
+/cpu_instrs.gb

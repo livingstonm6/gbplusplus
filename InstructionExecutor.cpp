@@ -142,8 +142,9 @@ void InstructionExecutor::proc_xor(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_ldh(CPUContext* cpu, Bus* bus)
 {
-	u16 data = bus->read(0xFF00 | cpu->memory_destination);
+	
 	if (cpu->current_instruction.reg1 == RT_A) {
+		u16 data = bus->read(cpu->fetched_data);
 		cpu->reg.write(RT_A, data);
 	}
 	else {
@@ -199,7 +200,7 @@ void InstructionExecutor::proc_ret(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_reti(CPUContext* cpu, Bus* bus)
 {
-	cpu->enabling_ime = true;
+	cpu->ime = true;
 	proc_ret(cpu, bus);
 }
 
@@ -215,8 +216,6 @@ void InstructionExecutor::proc_inc(CPUContext* cpu, Bus* bus)
 	u16 val = cpu->reg.read(cpu->current_instruction.reg1) + 1;
 	if (cpu->current_instruction.reg1 >= 10) { // 16 bit
 		cpu->cycles_to_increment++;
-		z = val == 0;
-		h = val == 0;
 	}
 	else {
 		h = (val & 0xF) == 0;
@@ -248,8 +247,6 @@ void InstructionExecutor::proc_dec(CPUContext* cpu, Bus* bus)
 	bool h;
 	if (cpu->current_instruction.reg1 >= 10) { // 16 bit
 		cpu->cycles_to_increment++;
-		z = val == 0;
-		h = val == 0;
 	}
 	else {
 		z = (val & 0xFF) == 0;
@@ -634,23 +631,6 @@ void InstructionExecutor::proc_daa(CPUContext* cpu, Bus* bus)
 	bool h = cpu->reg.get_flag(CFT_H);
 
 	bool new_cf = 0;
-	//u8 correction = 0;
-
-	//if (h || (!n && (a & 0xF) > 9)) {
-	//	correction |= 0x6;
-	//}
-
-	//if (cf || (!n && a > 0x99)) {
-	//	correction |= 0x60;
-	//	new_cf = 1;
-	//}
-
-	//if (n) {
-	//	a -= correction;
-	//}
-	//else {
-	//	a += correction;
-	//}
 
 	if (!n) {
 		if (cf || a > 0x99) {
@@ -664,7 +644,7 @@ void InstructionExecutor::proc_daa(CPUContext* cpu, Bus* bus)
 	else {
 		if (cf) {
 			a -= 0x60;
-			cf = 1;
+			new_cf = 1;
 		}
 		if (h) {
 			a -= 0x6;

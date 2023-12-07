@@ -2,15 +2,7 @@
 #include "Registers.h"
 #include "instructions.h"
 #include "common.h"
-
-struct InterruptRequests {
-	bool vblank = false;
-	bool lcd_stat = false;
-	bool timer = false;
-	bool serial = false;
-	bool joypad = false;
-};
-
+#include <vector>
 
 class CPUContext
 {
@@ -26,7 +18,8 @@ public:
 	bool ime = false;
 	bool enabling_ime = false;
 
-	struct InterruptRequests interrupt_requests;
+
+	std::vector<InterruptType> ppu_interrupt_queue;
 
 };
 

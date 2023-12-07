@@ -69,23 +69,104 @@ void LCD::write(u16 address, u8 value)
 
 void LCD::update_palette(u8 value, u8 palette_number)
 {
+    u32 colors[] = {colors_default[value & 0b11], colors_default[(value >> 2) & 0b11],
+        colors_default[(value >> 4) & 0b11],colors_default[(value >> 6) & 0b11] };
+
+    switch (palette_number)
+    {
+    case 0:
+        for (int i = 0; i < 4; i++) {
+            bg_colors[i] = colors[i];
+        }
+        
+        break;
+    case 1:
+        for (int i = 0; i < 4; i++) {
+            sp1_colors[i] = colors[i];
+        }
+
+        break;
+    case 2:
+        for (int i = 0; i < 4; i++) {
+            sp2_colors[i] = colors[i];
+        }
+
+        break;
+    }
 
 }
 
-// Return true if interrupt needs to be requested
-// todo: take in cpu context and mark interrupts there?
-bool LCD::increment_ly()
+
+void LCD::increment_ly(CPUContext* cpu)
 {
-    bool interrupt = false;
     ly++;
     if (ly == ly_compare) {
         set_lyc_flag();
         if (get_interrupt_status(ISM_LYC)) {
-            interrupt = true;
+            cpu->ppu_interrupt_queue.push_back(IT_LCD_STAT);
         }
     }
     else {
         reset_lyc_flag();
     }
-    return interrupt;
 }
+
+bool LCD::lcd_on()
+{
+    return lcd_control >> 7;
+}
+
+bool LCD::get_bgw_enable()
+{
+    return lcd_control & 1;
+}
+
+u16 LCD::get_bg_tile_map()
+{
+    if ((lcd_control & 0b1000) >> 3) {
+        return 0x9C00;
+    }
+    return 0x9800;
+}
+
+u16 LCD::get_bgw_tile_data_am()
+{
+    if ((lcd_control & 0b10000) >> 4) {
+        return 0x8000;
+    }
+    return 0x8800;
+}
+
+u16 LCD::get_window_tile_map()
+{
+    if ((lcd_control & 0b1000000) >> 6) {
+        return 0x9C00;
+    }
+    return 0x9800;
+}
+
+void LCD::set_lcd_mode(LCDMode mode)
+{
+    lcd_status = ((lcd_status >> 2) << 2) | mode;
+}
+
+LCDMode LCD::get_lcd_mode()
+{
+    return static_cast<LCDMode>(lcd_status & 0b11);
+}
+
+void LCD::set_lyc_flag()
+{
+    lcd_status |= 0b100;
+}
+
+void LCD::reset_lyc_flag()
+{
+    lcd_status &= 0b11111011;
+}
+
+bool LCD::get_interrupt_status(InterruptSourceMode interrupt_source)
+{
+    return lcd_status & interrupt_source;
+}
+

@@ -20,20 +20,24 @@ class FIFO
 {
 	struct FIFOEntry* head;
 	struct FIFOEntry* tail;
-	int size{};
-	int line_x{};
-	int pushed_x{};
-	int fetch_x{};
-	u8 bgw_fetch_data[3]{};
-	u8 fetch_entry_data[6]{};
+	
+	
+	
+	
+public:
 	int map_y = 0;
 	int map_x = 0;
 	int tile_y = 0;
 	int fifo_x = 0;
-public:
+	int pushed_x = 0;
+	int line_x = 0;
+	int size = 0;
+	int fetch_x = 0;
+	u8 bgw_fetch_data[3]{};
+	u8 fetch_entry_data[6]{};
 	FetchState current_fetch_state = FS_TILE;
 	void push(u32 value);
-	FIFOEntry pop();
+	u32 pop();
 	void reset();
 	bool add(int scroll_x, u32 colors[4]);
 

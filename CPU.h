@@ -7,18 +7,25 @@
 #include "interrupts.h"
 #include "Timer.h"
 #include "PPU.h"
+#include "LCD.h"
 
 class CPU
 {
+    
 private:
 	Bus* bus;
     Timer* timer;
     PPU* ppu;
+    LCD* lcd;
 	//bool enabling_ime = false;
 	int ticks = 0;
 	int step_count = 0;
 	//bool ime = false;
 	InstructionExecutor executor;
+    void tick_ppu();
+    void check_ppu_interrupts();
+
+    
 
     std::map<u8, Instruction> INSTRUCTIONS {
         {u8 {0x00}, Instruction(IT_NOP, AM_IMP, RT_NONE, RT_NONE, CT_NONE, 0)},
@@ -291,9 +298,11 @@ public:
 	CPUContext ctx;
 
     bool stepping = false;
+    bool debug_logging = false;
+    void update_logfile();
 
 	void init();
-	void connect(Bus* b, Timer* t, PPU* p);
+	void connect(Bus* b, Timer* t, PPU* p, LCD* l);
 	void step();
     void print_pc();
     void print_context();

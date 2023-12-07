@@ -1,11 +1,12 @@
 #pragma once
 #include "common.h"
+#include "CPUContext.h"
 class LCD
 {
 	u8 lcd_control = 0x91;
-	u8 lcd_status{};
-	u8 scroll_y{};
-	u8 scroll_x{};
+	u8 lcd_status = 2;
+	
+	
 	u8 ly_compare{};
 	u8 dma{};
 	u8 bgp_palette = 0xFC;
@@ -13,13 +14,18 @@ class LCD
 	u8 window_y{};
 	u8 window_x{};
 	u32 colors_default[4];
-	u32 bg_colors[4];
 	u32 sp1_colors[4];
 	u32 sp2_colors[4];
-	u8 ly{};
+	
 
 
 public:
+	u32 bg_colors[4];
+	u8 ly = 0;
+	u8 scroll_x{};
+	u8 scroll_y{};
+
+
 	LCD() {
 		obj_palette[0] = 0xFF;
 		obj_palette[1] = 0xFF;
@@ -37,6 +43,8 @@ public:
 
 	}
 	
+	
+
 	u8 read(u16 address);
 	void write(u16 address, u8 value);
 
@@ -51,8 +59,9 @@ public:
 	bool get_interrupt_status(InterruptSourceMode);
 
 	void update_palette(u8 value, u8 palette_number);
-	bool increment_ly();
+	void increment_ly(CPUContext*);
 
+	bool lcd_on();
 
 
 };

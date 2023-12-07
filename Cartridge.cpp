@@ -23,6 +23,9 @@ void Cartridge::load_rom(std::string fname)
 
 	file.close();
 
+	cartridge_type = data[0x147];
+	size = data.size();
+
 }
 
 u8 Cartridge::read(u16 address) {

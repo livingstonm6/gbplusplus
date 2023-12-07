@@ -6,14 +6,6 @@ typedef signed char s8;
 typedef signed short s16;
 typedef signed long s32;
 
-struct PPUInterrupts {
-	bool xfer;
-	bool vblank;
-	bool hblank_1;
-	bool hblank_2;
-	bool hblank_3;
-};
-
 enum LCDMode {
 	LM_H_BLANK = 0,
 	LM_V_BLANK = 1,
@@ -29,9 +21,18 @@ enum InterruptSourceMode {
 };
 
 enum InterruptType {
-	IT_VBLANK = 1,
-	IT_LCD_STAT = 2,
-	IT_TIMER = 4,
-	IT_SERIAL = 8,
-	IT_JOYPAD = 16
+	IT_VBLANK = 0b1,
+	IT_LCD_STAT = 0b10,
+	IT_TIMER = 0b100,
+	IT_SERIAL = 0b1000,
+	IT_JOYPAD = 0b10000
+};
+
+enum CartridgeType {
+	CT_ROM_ONLY = 0x00,
+	CT_MBC1 = 0x01,
+	CT_MBC1_RAM = 0x02,
+	CT_MBC1_RAM_BAT = 0x03,
+	CT_MBC2 = 0x05,
+	CT_MBC2_BAT = 0x06,
 };

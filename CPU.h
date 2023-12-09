@@ -4,7 +4,6 @@
 #include "Bus.h"
 #include "InstructionExecutor.h"
 #include "CPUContext.h"
-#include "interrupts.h"
 #include "Timer.h"
 #include "PPU.h"
 #include "LCD.h"

@@ -22,7 +22,10 @@ private:
 	//bool ime = false;
 	InstructionExecutor executor;
     void tick_ppu();
+    void fetch_sprite_tile();
+    void fetch_sprite_data(bool);
     void check_ppu_interrupts();
+    
 
     
 

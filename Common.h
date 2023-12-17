@@ -36,3 +36,14 @@ enum CartridgeType {
 	CT_MBC2 = 0x05,
 	CT_MBC2_BAT = 0x06,
 };
+
+enum JoypadInputType {
+	JIT_START = 1,
+	JIT_SELECT = 2,
+	JIT_B = 3,
+	JIT_A = 4,
+	JIT_DOWN = 5,
+	JIT_UP = 6,
+	JIT_LEFT = 7,
+	JIT_RIGHT = 8
+};

@@ -23,23 +23,9 @@ void RAM::write_hram(u16 address, u8 value) {
 
 u8 IORegisters::read(u16 address)
 {
-	/*switch (address) {
-	case 0xFF01:
-		return serial_data[0];
-		break;
-	case 0xFF02:
-		return serial_data[1];
-		break;
-	case 0xFF0F:
-		return interrupt_flag;
-		break;
-	case 0xFFFF:
-		return interrupt_enable;
-		break;
-	}*/
 
 	if (address == 0xFF00) {
-		return joypad;
+		return joypad.read();
 	}
 	else if (address == 0xFF01) {
 		return serial_data[0];
@@ -62,25 +48,11 @@ u8 IORegisters::read(u16 address)
 }
 
 void IORegisters::write(u16 address, u8 value) {
-	//switch (address) {
-	//case 0xFF01:
-	//	serial_data[0] = value;
-	//	break;
-	//case 0xFF02:
-	//	serial_data[1] = value;
-	//	break;
-	//case 0xFF0F:
-	//	interrupt_flag = value;
-	//	break;
-	//case 0xFFFF:
-	//	interrupt_enable = value;
-	//	break;
-	//}
 
-	//if (address == 0xFF00) {
-	//	joypad = value;
-	//}
-	if (address == 0xFF01) {
+	if (address == 0xFF00) {
+		joypad.write(value);
+	}
+	else if (address == 0xFF01) {
 		serial_data[0] = value;
 	}
 	else if (address == 0xFF02) {
@@ -141,16 +113,16 @@ u8 Bus::read(u16 address) {
 	else if (address < 0xFF00) {
 		return 0;
 	}
-	else if (address <= 0xFF04) {
+	else if (address < 0xFF04) {
 		return io_reg.read(address);
 	}
-	else if (address <= 0xFF08) {
+	else if (address < 0xFF08) {
 		return timer->read(address);
 	}
-	else if (address <= 0xFF40) {
+	else if (address < 0xFF40) {
 		return io_reg.read(address);
 	}
-	else if (address <= 0xFF4C) {
+	else if (address < 0xFF4C) {
 		return lcd->read(address);
 	}
 	else if (address < 0xFF80) {
@@ -273,6 +245,40 @@ void Bus::dma_tick()
 	ppu->oam_write(dma_byte, value);
 	dma_byte++;
 	dma_active = dma_byte < 0xA0;
+}
+
+void Bus::update_joypad(JoypadInputType input_type, bool pressed)
+{
+
+	// pressed = true if button is pressed
+	// in register 0xFF00 and joypad class, bit = 0 if button is pressed
+
+	switch (input_type) {
+	case JIT_SELECT:
+		io_reg.joypad.select = !pressed;
+		break;
+	case JIT_START:
+		io_reg.joypad.start = !pressed;
+		break;
+	case JIT_A:
+		io_reg.joypad.a = !pressed;
+		break;
+	case JIT_B:
+		io_reg.joypad.b = !pressed;
+		break;
+	case JIT_LEFT:
+		io_reg.joypad.left = !pressed;
+		break;
+	case JIT_RIGHT:
+		io_reg.joypad.right = !pressed;
+		break;
+	case JIT_DOWN:
+		io_reg.joypad.down = !pressed;
+		break;
+	case JIT_UP:
+		io_reg.joypad.up = !pressed;
+		break;
+	}
 }
 
 

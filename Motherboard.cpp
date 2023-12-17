@@ -54,10 +54,8 @@ void Motherboard::update_debug_window(SDL_Surface* screen, SDL_Texture* texture,
 void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_Renderer* renderer)
 {
 
-	// Wrong tiles are being displayed
-	// Seen in Dr Mario title screen
-	// In debug window, the bg tile 8 rows lower is displayed on screen
-
+	// TODO fix sprite rendering
+	// y value is incorrect, see Dr Mario title screen
 
 	SDL_Rect r = { 0, 0, 2048, 2048 };
 	for (int line_num = 0; line_num < ppu.Y_RES; line_num++) {
@@ -86,6 +84,42 @@ void Motherboard::init()
 	bus.connect(&ppu, &lcd, &cartridge, &timer);
 	cpu.connect(&bus, &timer, &ppu, &lcd);
 	ppu.connect(&lcd);
+}
+
+void Motherboard::handle_input(bool down, SDL_Keycode key)
+{
+	//TODO handle up/down
+	//TODO controller support
+	//TODO rebind keys
+
+	switch (key) {
+	case SDLK_z:
+		bus.update_joypad(JIT_B, down);
+		break;
+	case SDLK_x:
+		bus.update_joypad(JIT_A, down);
+		break;
+	case SDLK_UP:
+		bus.update_joypad(JIT_UP, down);
+		break;
+	case SDLK_LEFT:
+		bus.update_joypad(JIT_LEFT, down);
+		break;
+	case SDLK_DOWN:
+		bus.update_joypad(JIT_DOWN, down);
+		break;
+	case SDLK_RIGHT:
+		bus.update_joypad(JIT_RIGHT, down);
+		break;
+	case SDLK_c:
+		bus.update_joypad(JIT_START, down);
+		break;
+	case SDLK_v:
+		bus.update_joypad(JIT_SELECT, down);
+		break;
+
+	}
+
 }
 
 
@@ -118,7 +152,7 @@ void Motherboard::run()
 	SDL_Window* window = SDL_CreateWindow("gb++", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
-	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
 
 	SDL_RenderClear(renderer);
 
@@ -163,6 +197,15 @@ void Motherboard::run()
 		cpu.step();
 
 		while (SDL_PollEvent(&event)) {
+
+			if (event.type == SDL_KEYDOWN) {
+				handle_input(true, event.key.keysym.sym);
+			}
+
+			if (event.type == SDL_KEYUP) {
+				handle_input(false, event.key.keysym.sym);
+			}
+
 			if (event.type == SDL_QUIT) {
 				running = false;
 				break;

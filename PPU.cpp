@@ -1,6 +1,7 @@
 #include "PPU.h"
 #include <iostream>
 #include <SDL.h>
+#include <algorithm>
 u8 PPU::oam_read(u16 address)
 {
 	if (address >= 0xFE00) {
@@ -29,19 +30,24 @@ u8 PPU::vram_read(u16 address)
 	return vram[address - 0x8000];
 }
 
-void PPU::oam_write(u16 address, u32 value)
+void PPU::oam_write(u16 address, u8 value)
 {
 	if (address >= 0xFE00) {
 		address -= 0xFE00;
 	}
 	u16 oam_index = address / 4;
 	u8 byte_index = address % 4;
-	oam_ram[address].update(value, byte_index);
+	oam_ram[oam_index].update(value, byte_index);
 }
 
 void PPU::vram_write(u16 address, u8 value)
 {
 	vram[address - 0x8000] = value;
+}
+
+bool PPU::oam_is_empty()
+{
+	return line_oam.empty();
 }
 
 void PPU::connect(LCD* l)
@@ -86,11 +92,6 @@ void PPU::pipeline_fetch(u8 fetch)
 	case FS_TILE:
 		if (lcd->get_bgw_enable()) {
 			fifo.bgw_fetch_data[0] = fetch;
-			if (lcd->get_bgw_tile_data_am() == 0x8800) {
-				fifo.bgw_fetch_data[0] = fetch;
-			}
-		
-
 		}
 		fifo.current_fetch_state = FS_DATA_0;
 		fifo.fetch_x += 8;
@@ -107,7 +108,7 @@ void PPU::pipeline_fetch(u8 fetch)
 		fifo.current_fetch_state = FS_PUSH;
 		break;
 	case FS_PUSH:
-		if (fifo.add(lcd->scroll_x, lcd->bg_colors)) {
+		if (fifo.add(lcd, &fetched_entries)) {
 			fifo.current_fetch_state = FS_TILE;
 		}
 		break;
@@ -122,7 +123,6 @@ void PPU::pipeline_push_pixel()
 		if (fifo.line_x >= (lcd->scroll_x % 8)) {
 			u16 index = fifo.pushed_x + (lcd->ly * X_RES);
 			write_video_buffer(index, pixel_data);
-			//std::cout << "WRITING DATA TO BUFFER: 0x" << std::uppercase << std::hex << pixel_data << "\n";
 			fifo.pushed_x++;
 		}
 		fifo.line_x++;
@@ -137,6 +137,10 @@ void PPU::pipeline_process(u8 fetch)
 	pipeline_push_pixel();
 }
 
+bool oam_sort_by_x(OAMEntry entry_1, OAMEntry entry_2) {
+	return entry_1.x < entry_2.x;
+}
+
 void PPU::mode_oam()
 {
 	if (line_ticks >= 80) {
@@ -146,6 +150,27 @@ void PPU::mode_oam()
 		fifo.fetch_x = 0;
 		fifo.pushed_x = 0;
 		fifo.fifo_x = 0;
+	}
+	else if (line_ticks == 1) { // Fetch all on the first tick
+		line_oam.clear();
+
+		u8 height = lcd->get_sprite_height();
+		int i = 0;
+		for (auto& object : oam_ram) {
+			if ((object.x > 0) &&		// conflicting info, is x checked or not?
+				((lcd->ly + 16) >= object.y) &&
+				((lcd->ly + 16) < (object.y + height))) {
+
+				line_oam.push_back(object);
+				
+			}
+			if (line_oam.size() >= 10) {
+				break;
+			}
+			i++;
+		}
+		std::sort(line_oam.begin(), line_oam.end(), oam_sort_by_x);
+
 	}
 }
 
@@ -168,6 +193,7 @@ void PPU::mode_vblank(CPUContext* cpu)
 		if (lcd->ly >= LINES_PER_FRAME) {
 			lcd->set_lcd_mode(LM_OAM);
 			lcd->ly = 0;
+			lcd->window_line = 0;
 		}
 		line_ticks = 0;
 	}
@@ -198,7 +224,7 @@ void PPU::mode_hblank(CPUContext* cpu)
 				u32 fps = frame_count;
 				start_timer = end;
 				frame_count = 0;
-				//std::cout << "FPS: " << fps << "\n"; 
+				std::cout << "FPS: " << fps << "\n"; 
 			}
 
 			frame_count++;
@@ -210,27 +236,5 @@ void PPU::mode_hblank(CPUContext* cpu)
 		}
 		line_ticks = 0;
 
-	}
-}
-
-void OAMEntry::update(u8 value, u8 byte_index)
-{
-	switch (byte_index) {
-	case 0:
-		y = value;
-		break;
-	case 1:
-		x = value;
-		break;
-	case 2:
-		tile = value;
-		break;
-	case 3:
-		cgb_palette = value & 0b111;
-		cgb_vram_bank = value & (1 << 3);
-		pn = value & (1 << 4);
-		x_flip = value & (1 << 5);
-		y_flip = value & (1 << 6);
-		bgp = value & (1 << 7);
 	}
 }

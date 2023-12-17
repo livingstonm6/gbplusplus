@@ -16,6 +16,10 @@ class Motherboard
 	const int debug_width = 16 * 8 * scale;
 	const int debug_height = 32 * 8 * scale;
 	u32 tile_colours[4] = { 0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000 };
+	void handle_input(bool, SDL_Keycode);
+
+
+
 
 public:
 	Cartridge cartridge;
@@ -24,7 +28,7 @@ public:
 	PPU ppu;
 	LCD lcd;
 	Timer timer;
-	std::string filename = "drmario.gb";
+	std::string filename = "tetris.gb";
 
 	bool running = true;
 

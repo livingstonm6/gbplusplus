@@ -4,24 +4,7 @@
 #include "FIFO.h"
 #include "CPUContext.h"
 #include <vector>
-
-
-class OAMEntry {
-public:
-	u8 y = 0;
-	u8 x = 0;
-	u8 tile = 0;
-	int flags = 0;
-	u8 cgb_palette = 0;
-	bool cgb_vram_bank = 0;
-	bool pn = 0;
-	bool x_flip = 0;
-	bool y_flip = 0;
-	bool bgp = 0;
-
-	void update(u8 value, u8 byte_number);
-
-};
+#include "OAMEntry.h"
 
 
 class PPU
@@ -35,11 +18,6 @@ class PPU
 	long frame_count{};
 	LCD* lcd = nullptr;
 	
-	std::vector<OAMEntry> oam_ram;
-
-	//OAMEntry oam_ram[0xA0];
-	
-	
 	u8 vram[0x2000];
 
 	// todo remove magic numbers
@@ -47,8 +25,12 @@ class PPU
 
 
 public:
+	std::vector<OAMEntry> line_oam;
+	std::vector<OAMEntry> oam_ram;
+	std::vector<OAMEntry> fetched_entries;
 	const int Y_RES = 144;
 	const int X_RES = 160;
+
 
 	PPU() {
 		OAMEntry blank_entry;
@@ -72,8 +54,9 @@ public:
 	u8 oam_read(u16 address);
 	u8 vram_read(u16 address);
 
-	void oam_write(u16 address, u32 value);
+	void oam_write(u16 address, u8 value);
 	void vram_write(u16 address, u8 value);
+	bool oam_is_empty();
 
 	void connect(LCD* l);
 

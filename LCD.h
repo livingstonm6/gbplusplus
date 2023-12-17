@@ -1,6 +1,7 @@
 #pragma once
 #include "common.h"
 #include "CPUContext.h"
+
 class LCD
 {
 	u8 lcd_control = 0x91;
@@ -13,17 +14,19 @@ class LCD
 	u8 obj_palette[2];
 	u8 window_y{};
 	u8 window_x{};
-	u32 colors_default[4];
-	u32 sp1_colors[4];
-	u32 sp2_colors[4];
 	
 
 
 public:
+	u32 colors_default[4];
+	u32 sp1_colors[4];
+	u32 sp2_colors[4];
 	u32 bg_colors[4];
 	u8 ly = 0;
 	u8 scroll_x{};
 	u8 scroll_y{};
+
+	u8 window_line{};
 
 
 	LCD() {
@@ -49,6 +52,7 @@ public:
 	void write(u16 address, u8 value);
 
 	bool get_bgw_enable();
+	bool get_obj_enable();
 	u16 get_bg_tile_map();
 	u16 get_bgw_tile_data_am();
 	u16 get_window_tile_map();
@@ -57,6 +61,8 @@ public:
 	void set_lyc_flag();
 	void reset_lyc_flag();
 	bool get_interrupt_status(InterruptSourceMode);
+	u8 get_sprite_height();
+	bool window_visible();
 
 	void update_palette(u8 value, u8 palette_number);
 	void increment_ly(CPUContext*);

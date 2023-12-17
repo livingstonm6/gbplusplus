@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "Cartridge.h"
 #include "LCD.h"
+#include "Joypad.h"
 
 class RAM
 {
@@ -21,10 +22,11 @@ public:
 class IORegisters
 {
 public:
+	Joypad joypad;
+
 	u8 serial_data[2];
 	u8 interrupt_enable;
 	u8 interrupt_flag;
-	u8 joypad = 0xCF;
 
 	u8 read(u16 address);
 	void write(u16 address, u8 value);
@@ -61,6 +63,8 @@ public:
 
 	void dma_start(u8 start);
 	void dma_tick();
+
+	void update_joypad(JoypadInputType, bool);
 
 	void connect(PPU* p, LCD* l, Cartridge* c, Timer* t);
 	

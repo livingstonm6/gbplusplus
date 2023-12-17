@@ -1,5 +1,7 @@
 #pragma once
 #include "common.h"
+#include "LCD.h"
+#include "OAMEntry.h"
 
 enum FetchState {
 	FS_TILE = 1,
@@ -39,7 +41,8 @@ public:
 	void push(u32 value);
 	u32 pop();
 	void reset();
-	bool add(int scroll_x, u32 colors[4]);
+	u32 fetch_sprite_pixels(u8 bit, u32 color, u8 bg_color, LCD* lcd, std::vector<OAMEntry>* oam_ram);
+	bool add(LCD*, std::vector<OAMEntry>*);
 
 };
 

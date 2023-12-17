@@ -146,9 +146,11 @@
     <ClCompile Include="Emulator.cpp" />
     <ClCompile Include="FIFO.cpp" />
     <ClCompile Include="InstructionExecutor.cpp" />
+    <ClCompile Include="Joypad.cpp" />
     <ClCompile Include="LCD.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Motherboard.cpp" />
+    <ClCompile Include="OAMEntry.cpp" />
     <ClCompile Include="PPU.cpp" />
     <ClCompile Include="Registers.cpp" />
     <ClCompile Include="Timer.cpp" />
@@ -163,8 +165,10 @@
     <ClInclude Include="FIFO.h" />
     <ClInclude Include="InstructionExecutor.h" />
     <ClInclude Include="instructions.h" />
+    <ClInclude Include="Joypad.h" />
     <ClInclude Include="LCD.h" />
     <ClInclude Include="Motherboard.h" />
+    <ClInclude Include="OAMEntry.h" />
     <ClInclude Include="PPU.h" />
     <ClInclude Include="Registers.h" />
     <ClInclude Include="Timer.h" />

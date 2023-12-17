@@ -99,6 +99,12 @@ void LCD::update_palette(u8 value, u8 palette_number)
 
 void LCD::increment_ly(CPUContext* cpu)
 {
+    const int y_res = 144;
+    if (window_visible() && ly >= window_y && ly < (window_y + y_res)) {
+        window_line++;
+    }
+
+
     ly++;
     if (ly == ly_compare) {
         set_lyc_flag();
@@ -119,6 +125,11 @@ bool LCD::lcd_on()
 bool LCD::get_bgw_enable()
 {
     return lcd_control & 1;
+}
+
+bool LCD::get_obj_enable()
+{
+    return (lcd_control >> 1) & 1;
 }
 
 u16 LCD::get_bg_tile_map()
@@ -168,5 +179,22 @@ void LCD::reset_lyc_flag()
 bool LCD::get_interrupt_status(InterruptSourceMode interrupt_source)
 {
     return lcd_status & interrupt_source;
+}
+
+u8 LCD::get_sprite_height()
+{
+    if ((lcd_control >> 2) & 1) {
+        return 16;
+    }
+    return 8;
+}
+
+bool LCD::window_visible()
+{
+    const int y_res = 144;
+    bool win_enable_bit = (lcd_control >> 5) & 1;
+    bool win_on_screen = window_x <= 166 && window_y >= 9 &&
+        window_y < y_res;
+    return win_enable_bit && win_on_screen;
 }
 

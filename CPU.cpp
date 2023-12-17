@@ -287,6 +287,45 @@ void CPU::fetch_data()
 
 }
 
+void CPU::fetch_sprite_tile()
+{
+	for (auto& object : ppu->line_oam) {
+		int sprite_x = (object.x - 8) + (lcd->scroll_x % 8);
+
+		if ((sprite_x >= ppu->fifo.fetch_x && sprite_x < (ppu->fifo.fetch_x + 8)) ||
+			((sprite_x + 8) >= ppu->fifo.fetch_x && (sprite_x + 8) < (ppu->fifo.fetch_x + 8))) {
+			ppu->fetched_entries.push_back(object);
+
+			if (ppu->fetched_entries.size() >= 3) {
+				break;
+			}
+		}
+	}
+}
+
+void CPU::fetch_sprite_data(bool offset) {
+
+	int i = 0;
+	for (auto& object : ppu->fetched_entries) {
+		u8 tile_y = ((lcd->ly + 16) - object.y) * 2;
+
+		if (object.y_flip) {
+			tile_y = ((lcd->get_sprite_height() * 2) - 2) - tile_y;
+		}
+
+		u8 tile_index = object.tile;
+		if (lcd->get_sprite_height() == 16) {
+			tile_index &= ~(1);
+		}
+
+		u16 address2 = 0x8000 + (tile_index * 16) + tile_y + offset;
+
+		ppu->fifo.fetch_entry_data[(i * 2) + offset] = bus->read(address2);
+
+		i++;
+	}
+}
+
 void CPU::tick_ppu()
 {
 	if (lcd->get_lcd_mode() == LM_XFER) {
@@ -298,8 +337,7 @@ void CPU::tick_ppu()
 		switch (ppu->fifo.current_fetch_state) {
 		case FS_TILE:
 		{
-			//		u16 address = lcd->get_bg_tile_map() + (((ppu->fifo.fifo_x + lcd->scroll_x / 8) & 0x1F
-			//			+ (((ppu->fifo.map_y & 0xFF) / 8) * 32)) & 0x3FF);
+			ppu->fetched_entries.clear();
 
 			bool lcdc_flag = 0;
 			if (lcd->get_bg_tile_map() == 0x9C00) {
@@ -309,12 +347,19 @@ void CPU::tick_ppu()
 			u16 address_low_10 = ((((lcd->ly + lcd->scroll_y)  & 0xFF) / 8) << 5) | ((((ppu->fifo.fetch_x + lcd->scroll_x) & 0xFF) / 8));
 			u16 address = (address_high_6 << 10) | address_low_10;
 			
-			u8 fetch = bus->read(address);
-			ppu->tick(&ctx, fetch);
+			u8 bg_fetch = bus->read(address);
+
+			if (lcd->get_obj_enable() && !ppu->oam_is_empty()) {
+				fetch_sprite_tile();
+			}
+
+
+			ppu->tick(&ctx, bg_fetch);
 			break;
 		}
 		case FS_DATA_0:
 		{
+			// BG Fetch
 			bool bit_12 = 0;
 			if (lcd->get_bgw_tile_data_am() == 0x8800) {
 				bit_12 = !(ppu->fifo.bgw_fetch_data[0] >> 7);
@@ -323,8 +368,15 @@ void CPU::tick_ppu()
 			u16 address = (0b100 << 13) | (bit_12 << 12) | (ppu->fifo.bgw_fetch_data[0] << 4)
 				| bottom_4;
 
-			u8 fetch = bus->read(address);
-			ppu->tick(&ctx, fetch);
+			u8 bg_fetch = bus->read(address);
+
+
+			// Sprite fetch
+			if (lcd->get_obj_enable()) {
+				fetch_sprite_data(0);
+			}
+
+			ppu->tick(&ctx, bg_fetch);
 			break;
 		}
 		case FS_DATA_1:
@@ -337,6 +389,12 @@ void CPU::tick_ppu()
 			u16 address = (0b100 << 13) | (bit_12 << 12) | (ppu->fifo.bgw_fetch_data[0] << 4)
 				| bottom_4;
 			u8 fetch = bus->read(address);
+
+			// Sprite fetch
+			if (lcd->get_obj_enable()) {
+				fetch_sprite_data(1);
+			}
+
 			ppu->tick(&ctx, fetch);
 			break;
 		}

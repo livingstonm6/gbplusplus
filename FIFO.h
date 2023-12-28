@@ -20,11 +20,8 @@ struct FIFOEntry
 
 class FIFO
 {
-	struct FIFOEntry* head;
-	struct FIFOEntry* tail;
-	
-	
-	
+	struct FIFOEntry* head = nullptr;
+	struct FIFOEntry* tail = nullptr;
 	
 public:
 	int map_y = 0;

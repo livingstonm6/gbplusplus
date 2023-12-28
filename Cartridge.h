@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include "Common.h"
+#include <memory>
+#include "MBC.h"
 
 class ROMHeader
 {
@@ -10,11 +12,13 @@ class ROMHeader
 
 class Cartridge
 {
+	std::unique_ptr<MBC> mbc = nullptr;
+
 public:
 	std::string filename;
 	std::vector<unsigned char> data;
 	u8 cartridge_type{};
-	int size{};
+	ROMHeader header;
 
 	Cartridge() {}
 	void load_rom(std::string fn);

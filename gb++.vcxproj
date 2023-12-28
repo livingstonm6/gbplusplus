@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="APU.cpp" />
     <ClCompile Include="Bus.cpp" />
     <ClCompile Include="Cartridge.cpp" />
     <ClCompile Include="CPU.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="Joypad.cpp" />
     <ClCompile Include="LCD.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MBC1.cpp" />
     <ClCompile Include="Motherboard.cpp" />
     <ClCompile Include="OAMEntry.cpp" />
     <ClCompile Include="PPU.cpp" />
@@ -156,6 +158,7 @@
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="APU.h" />
     <ClInclude Include="Bus.h" />
     <ClInclude Include="Cartridge.h" />
     <ClInclude Include="Common.h" />
@@ -167,6 +170,8 @@
     <ClInclude Include="instructions.h" />
     <ClInclude Include="Joypad.h" />
     <ClInclude Include="LCD.h" />
+    <ClInclude Include="MBC.h" />
+    <ClInclude Include="MBC1.h" />
     <ClInclude Include="Motherboard.h" />
     <ClInclude Include="OAMEntry.h" />
     <ClInclude Include="PPU.h" />

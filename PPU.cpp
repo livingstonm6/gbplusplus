@@ -90,7 +90,7 @@ void PPU::pipeline_fetch(u8 fetch)
 {
 	switch (fifo.current_fetch_state) {
 	case FS_TILE:
-		if (lcd->get_bgw_enable()) {
+		if (lcd->get_bgw_enable() && !window_fetched) {
 			fifo.bgw_fetch_data[0] = fetch;
 		}
 		fifo.current_fetch_state = FS_DATA_0;
@@ -193,6 +193,7 @@ void PPU::mode_vblank(CPUContext* cpu)
 		if (lcd->ly >= LINES_PER_FRAME) {
 			lcd->set_lcd_mode(LM_OAM);
 			lcd->ly = 0;
+			lcd->ly_passed_window_y = false;
 			lcd->window_line = 0;
 		}
 		line_ticks = 0;
@@ -211,7 +212,7 @@ void PPU::mode_hblank(CPUContext* cpu)
 			}
 			current_frame++;
 
-			// TODO calculate frame rate here
+			// Calculate frame rate
 
 			u32 end = SDL_GetTicks();
 			u32 frame_time = end - prev_frame_time;

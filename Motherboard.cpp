@@ -81,7 +81,7 @@ void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_R
 void Motherboard::init()
 {
 	cartridge.load_rom(filename);
-	bus.connect(&ppu, &lcd, &cartridge, &timer);
+	bus.connect(&ppu, &lcd, &cartridge, &timer, &apu);
 	cpu.connect(&bus, &timer, &ppu, &lcd);
 	ppu.connect(&lcd);
 }
@@ -167,20 +167,20 @@ void Motherboard::run()
 
 	// Debug Window
 
-	//SDL_Window* debug_window = SDL_CreateWindow("gb++ Tile Viewer",
-	//	SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, debug_width,
-	//	debug_height, SDL_WINDOW_SHOWN);
-	//SDL_Surface* debug_screen = SDL_CreateRGBSurface(0,
-	//	(16 * 8 * scale) + (16 * scale),
-	//	(32 * 8 * scale) + (64 * scale),
-	//	32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+	SDL_Window* debug_window = SDL_CreateWindow("gb++ Tile Viewer",
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, debug_width,
+		debug_height, SDL_WINDOW_SHOWN);
+	SDL_Surface* debug_screen = SDL_CreateRGBSurface(0,
+		(16 * 8 * scale) + (16 * scale),
+		(32 * 8 * scale) + (64 * scale),
+		32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 
-	//SDL_Renderer* debug_renderer = SDL_CreateRenderer(debug_window, -1, 0);
+	SDL_Renderer* debug_renderer = SDL_CreateRenderer(debug_window, -1, 0);
 
-	//SDL_Texture* debug_texture = SDL_CreateTexture(debug_renderer,
-	//	SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-	//	(16 * 8 * scale) + (16 * scale),
-	//	(32 * 8 * scale) + (64 * scale));
+	SDL_Texture* debug_texture = SDL_CreateTexture(debug_renderer,
+		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+		(16 * 8 * scale) + (16 * scale),
+		(32 * 8 * scale) + (64 * scale));
 
 	int current_frame = 0;
 	int step_count = 0;
@@ -217,7 +217,7 @@ void Motherboard::run()
 		if (current_frame != ppu.current_frame) {
 			current_frame++;
 			update_window(screen, texture, renderer);
-			//update_debug_window(debug_screen, debug_texture, debug_renderer);
+			update_debug_window(debug_screen, debug_texture, debug_renderer);
 			step_count = 0;
 			//std::cout << "FRAME DRAWN\n";
 		}

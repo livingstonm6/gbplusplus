@@ -1,6 +1,8 @@
 #include "Cartridge.h"
 #include <fstream>
 #include <iostream>
+#include "MBC1.h"
+
 void Cartridge::load_rom(std::string fname)
 {
 	filename = fname;
@@ -11,7 +13,6 @@ void Cartridge::load_rom(std::string fname)
 		std::cerr << "Error opening file: " << fname << "\n";
 		exit(-1);
 	}
-
 
 	file.seekg(0, std::ios::end);
 	std::streampos fileSize = file.tellg();
@@ -24,16 +25,48 @@ void Cartridge::load_rom(std::string fname)
 	file.close();
 
 	cartridge_type = data[0x147];
-	size = data.size();
+
+	u8 total_ram_banks = 0;
+
+	switch (data[0x149]) {
+	case 2:
+		total_ram_banks = 1;
+	case 3:
+		total_ram_banks = 4;
+	case 4:
+		total_ram_banks = 16;
+	case 5:
+		total_ram_banks = 8;
+	}
+
+
+	switch (cartridge_type) {
+	case CT_MBC1:
+		mbc = std::make_unique<MBC1>(total_ram_banks, false, filename);
+		break;
+	case CT_MBC1_RAM:
+		mbc = std::make_unique<MBC1>(total_ram_banks, false, filename);
+		break;
+	case CT_MBC1_RAM_BAT:
+		mbc = std::make_unique<MBC1>(total_ram_banks, true, filename);
+		break;
+	}
 
 }
 
 u8 Cartridge::read(u16 address) {
-	//std::cout << "Cart read address: 0x" << std::hex << address << "\n";
-	return data[address];
+	if (mbc == nullptr) {
+		return data[address];
+	}
+
+	return mbc->read(address, data);
+	
 }
 
 void Cartridge::write(u16 address, u8 value)
 {
-	return;
+	if (mbc != nullptr) {
+		mbc->write(address, value);
+	}
+	
 }

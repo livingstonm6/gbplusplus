@@ -21,7 +21,7 @@ public:
 		{IT_PUSH, &InstructionExecutor::proc_push },
 		{IT_RET,  &InstructionExecutor::proc_ret	 },
 		{IT_RETI, &InstructionExecutor::proc_reti },
-		{IT_RST,  &InstructionExecutor::proc_rst	 },
+		{IT_RST,  &InstructionExecutor::proc_rst	},
 		{IT_INC,  &InstructionExecutor::proc_inc	 },
 		{IT_DEC,  &InstructionExecutor::proc_dec	 },
 		{IT_ADD,  &InstructionExecutor::proc_add	 },

@@ -7,6 +7,7 @@
 #include <string>
 #include "Timer.h"
 #include "SDL.h"
+#include "APU.h"
 
 class Motherboard
 {
@@ -18,17 +19,17 @@ class Motherboard
 	u32 tile_colours[4] = { 0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000 };
 	void handle_input(bool, SDL_Keycode);
 
-
-
-
 public:
 	Cartridge cartridge;
 	Bus bus;
 	CPU cpu;
 	PPU ppu;
 	LCD lcd;
+	APU apu;
 	Timer timer;
-	std::string filename = "tetris.gb";
+	std::string filename = "yoshi.gb";
+
+	bool debug_window = true;
 
 	bool running = true;
 

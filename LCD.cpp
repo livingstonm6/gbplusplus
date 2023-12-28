@@ -7,6 +7,9 @@ u8 LCD::read(u16 address)
     case 0xFF40:
         return lcd_control;
     case 0xFF41:
+        if (!lcd_on()) {
+            return lcd_status & 0b11111100;
+        }
         return lcd_status;
     case 0xFF42:
         return scroll_y;
@@ -106,6 +109,11 @@ void LCD::increment_ly(CPUContext* cpu)
 
 
     ly++;
+
+    if (ly == window_y) {
+        ly_passed_window_y = true;
+    }
+
     if (ly == ly_compare) {
         set_lyc_flag();
         if (get_interrupt_status(ISM_LYC)) {
@@ -163,6 +171,9 @@ void LCD::set_lcd_mode(LCDMode mode)
 
 LCDMode LCD::get_lcd_mode()
 {
+    if (!lcd_on()) {
+        return static_cast<LCDMode>(0);
+    }
     return static_cast<LCDMode>(lcd_status & 0b11);
 }
 
@@ -196,5 +207,10 @@ bool LCD::window_visible()
     bool win_on_screen = window_x <= 166 && window_y >= 9 &&
         window_y < y_res;
     return win_enable_bit && win_on_screen;
+}
+
+bool LCD::get_window_enable()
+{
+    return (lcd_control >> 5) & 1;
 }
 

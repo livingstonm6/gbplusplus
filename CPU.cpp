@@ -295,6 +295,7 @@ void CPU::fetch_sprite_tile()
 		if ((sprite_x >= ppu->fifo.fetch_x && sprite_x < (ppu->fifo.fetch_x + 8)) ||
 			((sprite_x + 8) >= ppu->fifo.fetch_x && (sprite_x + 8) < (ppu->fifo.fetch_x + 8))) {
 			ppu->fetched_entries.push_back(object);
+			ppu->sprite_fetched = true;
 
 			if (ppu->fetched_entries.size() >= 3) {
 				break;
@@ -326,6 +327,35 @@ void CPU::fetch_sprite_data(bool offset) {
 	}
 }
 
+void CPU::fetch_window_tile()
+{
+	// Use window tile map if drawing window
+	if (ppu->fifo.fetch_x + 7 >= lcd->window_x &&
+		ppu->fifo.fetch_x + 7 < lcd->window_x + ppu->Y_RES + 14) {
+		if (lcd->ly >= lcd->window_y && lcd->ly < lcd->window_y + ppu->X_RES) {
+			u8 window_tile_y = lcd->window_line / 8;
+			u16 address = lcd->get_window_tile_map() + ((ppu->fifo.fetch_x + 7 - lcd->window_x) / 8) + (window_tile_y * 32);
+			//bool lcdc_flag = 0;
+			//if (lcd->get_window_tile_map() == 0x9C00) {
+			//	lcdc_flag == 1;
+			//}
+			//
+			//u16 top_6 = ((0b10011 << 1) | lcdc_flag) << 10;
+			//u16 bottom_10 = (((lcd->window_y / 8) & 0b11111) << 5) | ((ppu->fifo.fetch_x / 8) & 0b11111);
+
+			//u16 address = top_6 | bottom_10;
+			
+			u8 data = bus->read(address);
+			//if (lcd->get_bgw_tile_data_am() == 0x8800) {
+			//	data += 128;
+			//}
+			ppu->fifo.bgw_fetch_data[0] = data;
+			ppu->window_fetched = true;
+			//std::cout << "Used window tile\n";
+		}
+	}
+}
+
 void CPU::tick_ppu()
 {
 	if (lcd->get_lcd_mode() == LM_XFER) {
@@ -338,6 +368,7 @@ void CPU::tick_ppu()
 		case FS_TILE:
 		{
 			ppu->fetched_entries.clear();
+			ppu->sprite_fetched = false;
 
 			bool lcdc_flag = 0;
 			if (lcd->get_bg_tile_map() == 0x9C00) {
@@ -348,11 +379,16 @@ void CPU::tick_ppu()
 			u16 address = (address_high_6 << 10) | address_low_10;
 			
 			u8 bg_fetch = bus->read(address);
+			ppu->window_fetched = false;
+
+			if (lcd->window_visible()) {
+				fetch_window_tile();
+			}
+			
 
 			if (lcd->get_obj_enable() && !ppu->oam_is_empty()) {
 				fetch_sprite_tile();
 			}
-
 
 			ppu->tick(&ctx, bg_fetch);
 			break;
@@ -365,10 +401,23 @@ void CPU::tick_ppu()
 				bit_12 = !(ppu->fifo.bgw_fetch_data[0] >> 7);
 			}
 			u8 bottom_4 = ((lcd->ly + lcd->scroll_y) % 8) << 1;
+			if (ppu->window_fetched) {
+				bottom_4 = ((lcd->window_y % 8) << 1);
+			}
+			
+
 			u16 address = (0b100 << 13) | (bit_12 << 12) | (ppu->fifo.bgw_fetch_data[0] << 4)
 				| bottom_4;
 
+			//if (ppu->window_fetched) {
+			//	bottom_4 = (lcd->window_y % 8) << 1;
+			//	//address = lcd->get_bgw_tile_data_am() + ppu->fifo.bgw_fetch_data[0] + (2 * (lcd->window_line % 8));
+			//}
+
 			u8 bg_fetch = bus->read(address);
+
+			// window fetch
+			
 
 
 			// Sprite fetch
@@ -386,8 +435,23 @@ void CPU::tick_ppu()
 				bit_12 = !(ppu->fifo.bgw_fetch_data[0] >> 7);
 			}
 			u8 bottom_4 = (((lcd->ly + lcd->scroll_y) % 8) << 1) | 1;
+
+
+			if (ppu->window_fetched) { 
+				bottom_4 = ((lcd->window_y % 8) << 1) + 1; 
+			}
+
+
+
 			u16 address = (0b100 << 13) | (bit_12 << 12) | (ppu->fifo.bgw_fetch_data[0] << 4)
 				| bottom_4;
+
+			//if (ppu->window_fetched) {
+			//	//address = (lcd->get_bgw_tile_data_am() + ppu->fifo.bgw_fetch_data[0] + (2 * (lcd->window_line % 8))) + 1;
+			//	//bottom_4 = ((lcd->window_y % 8) << 1) + 1;
+			//}
+
+
 			u8 fetch = bus->read(address);
 
 			// Sprite fetch

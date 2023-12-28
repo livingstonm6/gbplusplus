@@ -12,10 +12,6 @@ class LCD
 	u8 dma{};
 	u8 bgp_palette = 0xFC;
 	u8 obj_palette[2];
-	u8 window_y{};
-	u8 window_x{};
-	
-
 
 public:
 	u32 colors_default[4];
@@ -25,6 +21,10 @@ public:
 	u8 ly = 0;
 	u8 scroll_x{};
 	u8 scroll_y{};
+	u8 window_y{};
+	u8 window_x{};
+
+	bool ly_passed_window_y{};  // in current frame
 
 	u8 window_line{};
 
@@ -45,7 +45,7 @@ public:
 		}
 
 	}
-	
+
 	
 
 	u8 read(u16 address);
@@ -63,6 +63,7 @@ public:
 	bool get_interrupt_status(InterruptSourceMode);
 	u8 get_sprite_height();
 	bool window_visible();
+	bool get_window_enable();
 
 	void update_palette(u8 value, u8 palette_number);
 	void increment_ly(CPUContext*);

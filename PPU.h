@@ -11,13 +11,13 @@ class PPU
 {
 	int LINES_PER_FRAME = 154;
 	const int TICKS_PER_LINE = 456;
-	
+
 	const double frame_time_target = (double)1000 / 60;
 	long prev_frame_time{};
 	long start_timer{};
 	long frame_count{};
 	LCD* lcd = nullptr;
-	
+
 	u8 vram[0x2000];
 
 	// todo remove magic numbers
@@ -30,7 +30,8 @@ public:
 	std::vector<OAMEntry> fetched_entries;
 	const int Y_RES = 144;
 	const int X_RES = 160;
-
+	bool window_fetched = false;
+	bool sprite_fetched = false;
 
 	PPU() {
 		OAMEntry blank_entry;

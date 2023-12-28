@@ -67,11 +67,12 @@ void IORegisters::write(u16 address, u8 value) {
 
 }
 
-void Bus::connect(PPU* p, LCD* l, Cartridge* c, Timer* t) {
+void Bus::connect(PPU* p, LCD* l, Cartridge* c, Timer* t, APU* a) {
 	ppu = p;
 	lcd = l;
 	cartridge = c;
 	timer = t;
+	apu = a;
 	cartridge_type = static_cast<CartridgeType>(cartridge->cartridge_type);
 }
 
@@ -80,17 +81,7 @@ u8 Bus::read(u16 address) {
 		return cartridge->read(address);
 	}
 	else if (address < 0x8000) {
-		switch (cartridge_type) {
-		case CT_ROM_ONLY:
-			return cartridge->read(address);
-			break;
-		case CT_MBC1:
-			return cartridge->read(address);
-			break;
-		default:
-			exit(-23);
-		}
-		
+		return cartridge->read(address);
 	}
 	else if (address < 0xA000) {
 		return ppu->vram_read(address);
@@ -119,8 +110,11 @@ u8 Bus::read(u16 address) {
 	else if (address < 0xFF08) {
 		return timer->read(address);
 	}
-	else if (address < 0xFF40) {
+	else if (address < 0xFF10) {
 		return io_reg.read(address);
+	}
+	else if (address < 0xFF40) {
+		return apu->read(address);
 	}
 	else if (address < 0xFF4C) {
 		return lcd->read(address);
@@ -175,8 +169,11 @@ void Bus::write(u16 address, u8 value) {
 	else if (address < 0xFF08) {
 		timer->write(address, value);
 	}
-	else if (address < 0xFF40) {
+	else if (address < 0xFF10) {
 		io_reg.write(address, value);
+	}
+	else if (address < 0xFF40) {
+		apu->write(address, value);
 	}
 	else if (address < 0xFF46) {
 		lcd->write(address, value);

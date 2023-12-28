@@ -5,6 +5,7 @@
 #include "Cartridge.h"
 #include "LCD.h"
 #include "Joypad.h"
+#include "APU.h"
 
 class RAM
 {
@@ -48,6 +49,7 @@ class Bus
 	LCD* lcd = nullptr;
 	Cartridge* cartridge = nullptr;
 	Timer* timer = nullptr;
+	APU* apu = nullptr;
 
 	CartridgeType cartridge_type{};
 	u8 rom_bank_number{};
@@ -66,7 +68,7 @@ public:
 
 	void update_joypad(JoypadInputType, bool);
 
-	void connect(PPU* p, LCD* l, Cartridge* c, Timer* t);
+	void connect(PPU* p, LCD* l, Cartridge* c, Timer* t, APU* a);
 	
 
 };

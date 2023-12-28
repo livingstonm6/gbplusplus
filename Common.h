@@ -47,3 +47,10 @@ enum JoypadInputType {
 	JIT_LEFT = 7,
 	JIT_RIGHT = 8
 };
+
+enum AudioChannelType {
+	ACT_1 = 1,
+	ACT_2 = 2,
+	ACT_3 = 3,
+	ACT_4 = 4
+};

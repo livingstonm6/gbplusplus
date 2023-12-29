@@ -22,48 +22,6 @@ void FIFO::reset()
 
 u32 FIFO::fetch_sprite_pixels(u8 bit, u32 color, u8 bg_color, LCD* lcd, std::vector<OAMEntry>* oam_ram)
 {
-	//bool set_new_color = false;
-	//u32 new_color = 0;
-	//int i = 0;
-	//for (auto& object : *oam_ram) {
-	//	int sprite_x = (object.x - 8) + (lcd->scroll_x % 8);
-	//	if (sprite_x + 8 >= fifo_x) {
-	//		int offset = fifo_x - sprite_x;
-	//		if (0 <= offset <= 7) {
-	//			bit = (7 - offset);
-	//			if (object.x_flip) {
-	//				bit = offset;
-	//			}
-	//			// todo get high and low
-	//			u8 high = !!(fetch_entry_data[i * 2] & (1 << bit));
-	//			u8 low = !!(fetch_entry_data[(i * 2) + 1] & (1 << bit)) << 1;
-
-	//			if (!(high | low)) {
-	//				continue;
-	//			}
-	//			
-	//			if (!object.bgp || bg_color == 0) {
-	//				if (object.pn) {
-	//					new_color = lcd->sp2_colors[high | low];
-	//					set_new_color = true;
-	//				}
-	//				else {
-	//					new_color = lcd->sp1_colors[high | low];
-	//					set_new_color = true;
-	//				}
-
-	//				if (high | low) {
-	//					break;
-	//				}
-	//			}
-	//		}
-	//	}
-	//	i++;
-	//}
-	//if (set_new_color) {
-	//	return new_color;
-	//}
-	//return color;
 
 	for (int i = 0; i < oam_ram->size(); i++) {
 		int sprite_x = (oam_ram->at(i).x - 8) + (lcd->scroll_x % 8);

@@ -63,8 +63,14 @@ bool Timer::tick()
 	}
 
 	if (timer_update && (tac & (1 << 2))) {
-		
-		if (tima == 0xFF && tima_overflow_count == 0) {
+		tima++;
+		if (tima == 0xFF) {
+			tima = tma;
+			request_interrupt = true;
+		}
+
+
+	/*	if (tima == 0xFF && tima_overflow_count == 0) {
 			tima++;
 			tima_overflow_count++;
 		}
@@ -80,7 +86,7 @@ bool Timer::tick()
 		}
 		else {
 			tima++;
-		}
+		}*/
 	}
 
 	return request_interrupt;

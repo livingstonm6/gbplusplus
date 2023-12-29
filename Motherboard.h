@@ -28,7 +28,7 @@ public:
 	APU apu;
 	Timer timer;
 	PPUMemory ppu_memory;
-	std::string filename = "mario2.gb";
+	std::string filename = "02-interrupts.gb";
 
 	bool debug_window = true;
 

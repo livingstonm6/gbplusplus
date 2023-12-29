@@ -54,9 +54,6 @@ void Motherboard::update_debug_window(SDL_Surface* screen, SDL_Texture* texture,
 void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_Renderer* renderer)
 {
 
-	// TODO fix sprite rendering
-	// y value is incorrect, see Dr Mario title screen
-
 	SDL_Rect r = { 0, 0, 2048, 2048 };
 	for (int line_num = 0; line_num < ppu.Y_RES; line_num++) {
 		for (int x = 0; x < ppu.X_RES; x++) {
@@ -66,7 +63,6 @@ void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_R
 			r.h = scale;
 			u16 address = x + (line_num * ppu.X_RES);
 			u32 buf = ppu.read_video_buffer(address);
-			//std::cout << "buf: 0x" << std::uppercase << std::hex << buf << "\n";
 			SDL_FillRect(screen, &r, buf);
 		}
 	}
@@ -81,9 +77,9 @@ void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_R
 void Motherboard::init()
 {
 	cartridge.load_rom(filename);
-	bus.connect(&ppu, &lcd, &cartridge, &timer, &apu);
+	bus.connect(&ppu_memory, &lcd, &cartridge, &timer, &apu);
 	cpu.connect(&bus, &timer, &ppu, &lcd);
-	ppu.connect(&lcd);
+	ppu.connect(&lcd, &ppu_memory, &bus);
 }
 
 void Motherboard::handle_input(bool down, SDL_Keycode key)
@@ -150,7 +146,7 @@ void Motherboard::run()
 	// Main Window
 
 	SDL_Window* window = SDL_CreateWindow("gb++", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
 
@@ -167,7 +163,7 @@ void Motherboard::run()
 
 	// Debug Window
 
-	SDL_Window* debug_window = SDL_CreateWindow("gb++ Tile Viewer",
+	/*SDL_Window* debug_window = SDL_CreateWindow("gb++ Tile Viewer",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, debug_width,
 		debug_height, SDL_WINDOW_SHOWN);
 	SDL_Surface* debug_screen = SDL_CreateRGBSurface(0,
@@ -175,12 +171,12 @@ void Motherboard::run()
 		(32 * 8 * scale) + (64 * scale),
 		32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 
-	SDL_Renderer* debug_renderer = SDL_CreateRenderer(debug_window, -1, 0);
+	SDL_Renderer* debug_renderer = SDL_CreateRenderer(debug_window, -1, SDL_RENDERER_ACCELERATED);
 
 	SDL_Texture* debug_texture = SDL_CreateTexture(debug_renderer,
 		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
 		(16 * 8 * scale) + (16 * scale),
-		(32 * 8 * scale) + (64 * scale));
+		(32 * 8 * scale) + (64 * scale));*/
 
 	int current_frame = 0;
 	int step_count = 0;
@@ -191,8 +187,9 @@ void Motherboard::run()
 		cpu.update_logfile();
 	}
 
+	SDL_Event event;
+
 	while (running) {
-		SDL_Event event;
 
 		cpu.step();
 
@@ -212,14 +209,12 @@ void Motherboard::run()
 			}
 		}
 
-		//update_window(screen, texture, renderer);
-
 		if (current_frame != ppu.current_frame) {
 			current_frame++;
 			update_window(screen, texture, renderer);
-			update_debug_window(debug_screen, debug_texture, debug_renderer);
+			//update_debug_window(debug_screen, debug_texture, debug_renderer);
 			step_count = 0;
-			//std::cout << "FRAME DRAWN\n";
+			cartridge.save_battery();
 		}
 
 		step_count++;

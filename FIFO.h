@@ -2,6 +2,7 @@
 #include "common.h"
 #include "LCD.h"
 #include "OAMEntry.h"
+#include <deque>
 
 enum FetchState {
 	FS_TILE = 1,
@@ -11,17 +12,9 @@ enum FetchState {
 	FS_IDLE = 5
 };
 
-struct FIFOEntry
-{
-	struct FIFOEntry *next;
-	u32 value;
-};
-
-
 class FIFO
 {
-	struct FIFOEntry* head = nullptr;
-	struct FIFOEntry* tail = nullptr;
+	std::deque<u32> queue{};
 	
 public:
 	int map_y = 0;
@@ -30,7 +23,6 @@ public:
 	int fifo_x = 0;
 	int pushed_x = 0;
 	int line_x = 0;
-	int size = 0;
 	int fetch_x = 0;
 	u8 bgw_fetch_data[3]{};
 	u8 fetch_entry_data[6]{};
@@ -40,6 +32,8 @@ public:
 	void reset();
 	u32 fetch_sprite_pixels(u8 bit, u32 color, u8 bg_color, LCD* lcd, std::vector<OAMEntry>* oam_ram);
 	bool add(LCD*, std::vector<OAMEntry>*);
+
+	u8 size();
 
 };
 

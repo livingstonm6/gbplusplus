@@ -67,8 +67,8 @@ void IORegisters::write(u16 address, u8 value) {
 
 }
 
-void Bus::connect(PPU* p, LCD* l, Cartridge* c, Timer* t, APU* a) {
-	ppu = p;
+void Bus::connect(PPUMemory* p, LCD* l, Cartridge* c, Timer* t, APU* a) {
+	ppu_memory = p;
 	lcd = l;
 	cartridge = c;
 	timer = t;
@@ -84,7 +84,7 @@ u8 Bus::read(u16 address) {
 		return cartridge->read(address);
 	}
 	else if (address < 0xA000) {
-		return ppu->vram_read(address);
+		return ppu_memory->vram_read(address);
 	}
 	else if (address < 0xC000) {
 		return cartridge->read(address);
@@ -99,7 +99,7 @@ u8 Bus::read(u16 address) {
 		if (dma_active) {
 			return 0xFF;
 		}
-		return ppu->oam_read(address);
+		return ppu_memory->oam_read(address);
 	}
 	else if (address < 0xFF00) {
 		return 0;
@@ -143,7 +143,7 @@ void Bus::write(u16 address, u8 value) {
 		cartridge->write(address, value);
 	}
 	else if (address < 0xA000) {
-		ppu->vram_write(address, value);
+		ppu_memory->vram_write(address, value);
 	}
 	else if (address < 0xC000) {
 		cartridge->write(address, value);
@@ -158,7 +158,7 @@ void Bus::write(u16 address, u8 value) {
 		if (dma_active) {
 			return;
 		}
-		ppu->oam_write(address, value);
+		ppu_memory->oam_write(address, value);
 	}
 	else if (address < 0xFF00) {
 		return;
@@ -239,7 +239,7 @@ void Bus::dma_tick()
 		return;
 	}
 	u8 value = read((dma_value * 0x100) + dma_byte);
-	ppu->oam_write(dma_byte, value);
+	ppu_memory->oam_write(dma_byte, value);
 	dma_byte++;
 	dma_active = dma_byte < 0xA0;
 }

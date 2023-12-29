@@ -27,7 +27,8 @@ public:
 	LCD lcd;
 	APU apu;
 	Timer timer;
-	std::string filename = "yoshi.gb";
+	PPUMemory ppu_memory;
+	std::string filename = "mario2.gb";
 
 	bool debug_window = true;
 

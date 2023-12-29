@@ -70,3 +70,10 @@ void Cartridge::write(u16 address, u8 value)
 	}
 	
 }
+
+void Cartridge::save_battery()
+{
+	if (mbc != nullptr) {
+		mbc->save_battery();
+	}
+}

@@ -154,6 +154,7 @@
     <ClCompile Include="Motherboard.cpp" />
     <ClCompile Include="OAMEntry.cpp" />
     <ClCompile Include="PPU.cpp" />
+    <ClCompile Include="PPUMemory.cpp" />
     <ClCompile Include="Registers.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
@@ -175,6 +176,7 @@
     <ClInclude Include="Motherboard.h" />
     <ClInclude Include="OAMEntry.h" />
     <ClInclude Include="PPU.h" />
+    <ClInclude Include="PPUMemory.h" />
     <ClInclude Include="Registers.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>

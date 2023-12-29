@@ -389,3 +389,6 @@ FodyWeavers.xsd
 /wario.gb
 /wario2.gb
 /yoshi.gb
+/mario2.sav
+*.sav
+*.gb

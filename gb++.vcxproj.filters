@@ -66,6 +66,9 @@
     <ClCompile Include="MBC1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PPUMemory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bus.h">
@@ -123,6 +126,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MBC1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PPUMemory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

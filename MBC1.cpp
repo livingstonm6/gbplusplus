@@ -1,4 +1,6 @@
 #include "MBC1.h"
+#include <fstream>
+#include <iostream>
 
 void MBC1::init_ram_banking()
 {
@@ -9,10 +11,37 @@ void MBC1::init_ram_banking()
 
 void MBC1::load_battery()
 {
+	std::ifstream file(save_filename, std::ios::binary);
+
+	if (!file.is_open()) {  // No saved data
+		std::cerr << "Failed to read save file.\n";
+		return;
+	}
+
+	int memory_bank_size = 0x4000;
+
+	file.read(reinterpret_cast<char*>(ram_banks[ram_bank_number].data), memory_bank_size);
+
+	file.close();
+
 }
 
 void MBC1::save_battery()
 {
+	if (battery_needs_save) {
+		std::ofstream file(save_filename, std::ios::binary);
+
+		if (!file.is_open()) {
+			std::cerr << "Failed to save file.\n";
+			exit(-1);
+		}
+
+		int memory_bank_size = 0x4000;
+
+		file.write(reinterpret_cast<char*>(ram_banks[ram_bank_number].data), memory_bank_size);
+
+		file.close();
+	}
 }
 
 u8 MBC1::read(u16 address, std::vector<u8>& data)
@@ -55,7 +84,9 @@ void MBC1::write(u16 address, u8 value)
 	else if (0xA000 <= address <= 0xBFFF) {
 		if (ram_banking_enabled) {
 			ram_banks[ram_bank_number].data[address - 0xA000] = value;
-			save_battery();
+			if (has_battery) {
+				battery_needs_save = true;
+			}
 		}
 	}
 }

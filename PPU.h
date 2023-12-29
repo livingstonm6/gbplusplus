@@ -5,6 +5,8 @@
 #include "CPUContext.h"
 #include <vector>
 #include "OAMEntry.h"
+#include "PPUMemory.h"
+#include "Bus.h"
 
 
 class PPU
@@ -17,16 +19,21 @@ class PPU
 	long start_timer{};
 	long frame_count{};
 	LCD* lcd = nullptr;
+	PPUMemory* memory = nullptr;
+	Bus* bus = nullptr;
 
-	u8 vram[0x2000];
 
 	// todo remove magic numbers
 	u32 video_buffer[144 * 160];
 
+	void fetch_bg_tile();
+	void fetch_window_tile();
+	void fetch_sprite_tile();
+	void fetch_sprite_data(bool offset);
+
 
 public:
 	std::vector<OAMEntry> line_oam;
-	std::vector<OAMEntry> oam_ram;
 	std::vector<OAMEntry> fetched_entries;
 	const int Y_RES = 144;
 	const int X_RES = 160;
@@ -34,17 +41,9 @@ public:
 	bool sprite_fetched = false;
 
 	PPU() {
-		OAMEntry blank_entry;
-
-		for (int i = 0; i < 0xA0; i++) {
-			oam_ram.push_back(blank_entry);
-		}
 
 		for (int i = 0; i < 144 * 160; i++) {
 			video_buffer[i] = 0;
-		}
-		for (int i = 0; i < 0xA0; i++) {
-			vram[i] = 0;
 		}
 
 	}
@@ -52,26 +51,22 @@ public:
 	long current_frame{};
 	FIFO fifo;
 	int line_ticks{};
-	u8 oam_read(u16 address);
-	u8 vram_read(u16 address);
 
-	void oam_write(u16 address, u8 value);
-	void vram_write(u16 address, u8 value);
 	bool oam_is_empty();
 
-	void connect(LCD* l);
+	void connect(LCD* l, PPUMemory* p, Bus* b);
 
 	u32 read_video_buffer(u16 address);
 	void write_video_buffer(u16 address, u32 value);
 
-	void tick(CPUContext* cpu, u8 fetch = 0);
+	void tick(CPUContext* cpu);
 
-	void pipeline_fetch(u8 fetch);
+	void pipeline_fetch();
 	void pipeline_push_pixel();
-	void pipeline_process(u8);
+	void pipeline_process();
 
 	void mode_oam();
-	void mode_xfer(CPUContext*, u8 fetch = 0);
+	void mode_xfer(CPUContext*);
 	void mode_vblank(CPUContext*);
 	void mode_hblank(CPUContext*);
 };

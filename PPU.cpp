@@ -2,57 +2,17 @@
 #include <iostream>
 #include <SDL.h>
 #include <algorithm>
-u8 PPU::oam_read(u16 address)
-{
-	if (address >= 0xFE00) {
-		address -= 0xFE00;
-	}
-	u16 oam_index = address / 4;
-	u8 byte_index = address % 4;
-	switch (byte_index) {
-	case 0:
-		return oam_ram[address].y;
-	case 1:
-		return oam_ram[address].x;
-	case 2:
-		return oam_ram[address].tile;
-	case 3:
-		u8 value = oam_ram[address].cgb_palette | (oam_ram[address].cgb_vram_bank << 3)
-			| (oam_ram[address].pn << 4) | (oam_ram[address].x_flip << 5)
-			| (oam_ram[address].y_flip << 6) | (oam_ram[address].bgp << 7);
-		return value;
-	}
-	;
-}
-
-u8 PPU::vram_read(u16 address)
-{
-	return vram[address - 0x8000];
-}
-
-void PPU::oam_write(u16 address, u8 value)
-{
-	if (address >= 0xFE00) {
-		address -= 0xFE00;
-	}
-	u16 oam_index = address / 4;
-	u8 byte_index = address % 4;
-	oam_ram[oam_index].update(value, byte_index);
-}
-
-void PPU::vram_write(u16 address, u8 value)
-{
-	vram[address - 0x8000] = value;
-}
 
 bool PPU::oam_is_empty()
 {
 	return line_oam.empty();
 }
 
-void PPU::connect(LCD* l)
+void PPU::connect(LCD* l, PPUMemory* p, Bus* b)
 {
 	lcd = l;
+	memory = p;
+	bus = b;
 }
 
 u32 PPU::read_video_buffer(u16 address)
@@ -65,7 +25,7 @@ void PPU::write_video_buffer(u16 address, u32 value)
 	video_buffer[address] = value;
 }
 
-void PPU::tick(CPUContext* cpu, u8 fetch)
+void PPU::tick(CPUContext* cpu)
 {
 	if (lcd->lcd_on()) {
 		line_ticks++;
@@ -74,7 +34,7 @@ void PPU::tick(CPUContext* cpu, u8 fetch)
 			mode_oam();
 			break;
 		case LM_XFER:
-			mode_xfer(cpu, fetch);
+			mode_xfer(cpu);
 			break;
 		case LM_V_BLANK:
 			mode_vblank(cpu);
@@ -86,24 +46,138 @@ void PPU::tick(CPUContext* cpu, u8 fetch)
 	}
 }
 
-void PPU::pipeline_fetch(u8 fetch)
+void PPU::fetch_bg_tile() 
+{
+	bool lcdc_flag = lcd->get_bg_tile_map() == 0x9C00;
+
+	u8 address_high_6 = 0b100110 | lcdc_flag;
+	u16 address_low_10 = ((((lcd->ly + lcd->scroll_y) & 0xFF) / 8) << 5) | ((((fifo.fetch_x + lcd->scroll_x) & 0xFF) / 8));
+	u16 address = (address_high_6 << 10) | address_low_10;
+
+	u8 bg_fetch = bus->read(address);
+
+	fifo.bgw_fetch_data[0] = bg_fetch;
+}
+
+void PPU::fetch_window_tile()
+{
+	if (fifo.fetch_x + 7 >= lcd->window_x &&
+		fifo.fetch_x + 7 < lcd->window_x + Y_RES + 14) {
+		if (lcd->ly >= lcd->window_y && lcd->ly < lcd->window_y + X_RES) {
+			u8 window_tile_y = lcd->window_line / 8;
+			u16 address = lcd->get_window_tile_map() + ((fifo.fetch_x + 7 - lcd->window_x) / 8) + (window_tile_y * 32);
+
+			u8 data = bus->read(address);
+
+			fifo.bgw_fetch_data[0] = data;
+			window_fetched = true;
+		}
+	}
+}
+
+void PPU::fetch_sprite_tile()
+{
+	for (auto& object : line_oam) {
+		int sprite_x = (object.x - 8) + (lcd->scroll_x % 8);
+
+		if ((sprite_x >= fifo.fetch_x && sprite_x < (fifo.fetch_x + 8)) ||
+			((sprite_x + 8) >= fifo.fetch_x && (sprite_x + 8) < (fifo.fetch_x + 8))) {
+			fetched_entries.push_back(object);
+			sprite_fetched = true;
+
+			if (fetched_entries.size() >= 3) {
+				break;
+			}
+		}
+	}
+}
+
+void PPU::fetch_sprite_data(bool offset) {
+
+	int i = 0;
+	for (auto& object : fetched_entries) {
+		u8 tile_y = ((lcd->ly + 16) - object.y) * 2;
+
+		if (object.y_flip) {
+			tile_y = ((lcd->get_sprite_height() * 2) - 2) - tile_y;
+		}
+
+		u8 tile_index = object.tile;
+		if (lcd->get_sprite_height() == 16) {
+			tile_index &= ~(1);
+		}
+
+		u16 address2 = 0x8000 + (tile_index * 16) + tile_y + offset;
+
+		fifo.fetch_entry_data[(i * 2) + offset] = bus->read(address2);
+
+		i++;
+	}
+}
+
+void PPU::pipeline_fetch()
 {
 	switch (fifo.current_fetch_state) {
-	case FS_TILE:
-		if (lcd->get_bgw_enable() && !window_fetched) {
-			fifo.bgw_fetch_data[0] = fetch;
+	case FS_TILE: {
+		fetched_entries.clear();
+		window_fetched = false;
+
+		if (lcd->get_bgw_enable()) {
+			if (lcd->window_visible()) {
+				fetch_window_tile();
+			}
+			if (!window_fetched) {
+				fetch_bg_tile();
+			}
 		}
+
+		if (lcd->get_obj_enable() && !oam_is_empty()) {
+			fetch_sprite_tile();
+		}
+
 		fifo.current_fetch_state = FS_DATA_0;
 		fifo.fetch_x += 8;
 		break;
-	case FS_DATA_0:
-		fifo.bgw_fetch_data[1] = fetch;
+	}
+	case FS_DATA_0: {
+		// BG Fetch
+		bool bit_12 = 0;
+		if (lcd->get_bgw_tile_data_am() == 0x8800) {
+			bit_12 = !(fifo.bgw_fetch_data[0] >> 7);
+		}
+		u8 bottom_4 = ((lcd->ly + lcd->scroll_y) % 8) << 1;
+
+		u16 address = (0b100 << 13) | (bit_12 << 12) | (fifo.bgw_fetch_data[0] << 4)
+			| bottom_4;
+
+		u8 bg_fetch = bus->read(address);
+
+		fifo.bgw_fetch_data[1] = bg_fetch;
+
+		fetch_sprite_data(0);		
+
 		fifo.current_fetch_state = FS_DATA_1;
 		break;
-	case FS_DATA_1:
+	}
+	case FS_DATA_1: {
+
+		bool bit_12 = 0;
+		if (lcd->get_bgw_tile_data_am() == 0x8800) {
+			bit_12 = !(fifo.bgw_fetch_data[0] >> 7);
+		}
+		u8 bottom_4 = (((lcd->ly + lcd->scroll_y) % 8) << 1) | 1;
+
+		u16 address = (0b100 << 13) | (bit_12 << 12) | (fifo.bgw_fetch_data[0] << 4)
+			| bottom_4;
+
+		u8 fetch = bus->read(address);
 		fifo.bgw_fetch_data[2] = fetch;
+
+		fetch_sprite_data(1);
+
 		fifo.current_fetch_state = FS_IDLE;
 		break;
+	}
 	case FS_IDLE:
 		fifo.current_fetch_state = FS_PUSH;
 		break;
@@ -117,7 +191,7 @@ void PPU::pipeline_fetch(u8 fetch)
 
 void PPU::pipeline_push_pixel()
 {
-	if (fifo.size >= 8) {
+	if (fifo.size() >= 8) {
 		u32 pixel_data = fifo.pop();
 
 		if (fifo.line_x >= (lcd->scroll_x % 8)) {
@@ -129,10 +203,11 @@ void PPU::pipeline_push_pixel()
 	}
 }
 
-void PPU::pipeline_process(u8 fetch)
+void PPU::pipeline_process()
 {
+
 	if (!(line_ticks & 0b1)) {
-		pipeline_fetch(fetch);
+		pipeline_fetch();
 	}
 	pipeline_push_pixel();
 }
@@ -156,7 +231,7 @@ void PPU::mode_oam()
 
 		u8 height = lcd->get_sprite_height();
 		int i = 0;
-		for (auto& object : oam_ram) {
+		for (auto& object : memory->oam_ram) {
 			if ((object.x > 0) &&		// conflicting info, is x checked or not?
 				((lcd->ly + 16) >= object.y) &&
 				((lcd->ly + 16) < (object.y + height))) {
@@ -174,9 +249,12 @@ void PPU::mode_oam()
 	}
 }
 
-void PPU::mode_xfer(CPUContext* cpu, u8 fetch)
+void PPU::mode_xfer(CPUContext* cpu)
 {
-	pipeline_process(fetch);
+	fifo.map_y = lcd->ly + lcd->scroll_y;
+	fifo.map_x = fifo.fifo_x + lcd->scroll_x;
+	fifo.tile_y = ((lcd->ly + lcd->scroll_y) % 8) * 2;
+	pipeline_process();
 	if (fifo.pushed_x >= X_RES) {
 		fifo.reset();
 		lcd->set_lcd_mode(LM_H_BLANK);
@@ -217,6 +295,7 @@ void PPU::mode_hblank(CPUContext* cpu)
 			u32 end = SDL_GetTicks();
 			u32 frame_time = end - prev_frame_time;
 
+			// 60 FPS framerate cap
 			if (frame_time < frame_time_target) {
 				SDL_Delay((frame_time_target - frame_time));
 			}

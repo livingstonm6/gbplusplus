@@ -1,11 +1,11 @@
 #pragma once
 #include "common.h"
-#include "PPU.h"
 #include "Timer.h"
 #include "Cartridge.h"
 #include "LCD.h"
 #include "Joypad.h"
 #include "APU.h"
+#include "PPUMemory.h"
 
 class RAM
 {
@@ -45,7 +45,7 @@ class Bus
 
 
 	RAM ram{};
-	PPU* ppu = nullptr;
+	PPUMemory* ppu_memory = nullptr;
 	LCD* lcd = nullptr;
 	Cartridge* cartridge = nullptr;
 	Timer* timer = nullptr;
@@ -68,7 +68,7 @@ public:
 
 	void update_joypad(JoypadInputType, bool);
 
-	void connect(PPU* p, LCD* l, Cartridge* c, Timer* t, APU* a);
+	void connect(PPUMemory* p, LCD* l, Cartridge* c, Timer* t, APU* a);
 	
 
 };

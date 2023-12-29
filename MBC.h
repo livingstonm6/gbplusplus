@@ -17,7 +17,9 @@ public:
 class MBC
 {
 public:
+
 	virtual u8 read(u16 address, std::vector<u8>& data) = 0;
 	virtual void write(u16 address, u8 value) = 0;
+	virtual void save_battery() = 0;
 };
 

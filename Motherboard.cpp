@@ -1,6 +1,7 @@
 #include "Motherboard.h"
 #include <fstream>
 #include <iostream>
+#include <thread>
 
 void Motherboard::display_tile(SDL_Surface* screen, u16 address, int tile_num, int x, int y)
 {
@@ -87,7 +88,7 @@ void Motherboard::handle_input(bool down, SDL_Keycode key)
 	//TODO handle up/down
 	//TODO controller support
 	//TODO rebind keys
-
+	thread_lock.lock();
 	switch (key) {
 	case SDLK_z:
 		bus.update_joypad(JIT_B, down);
@@ -115,8 +116,10 @@ void Motherboard::handle_input(bool down, SDL_Keycode key)
 		break;
 
 	}
+	thread_lock.unlock();
 
 }
+
 
 
 void Motherboard::run()
@@ -145,17 +148,17 @@ void Motherboard::run()
 
 	// Main Window
 
-	SDL_Window* window = SDL_CreateWindow("gb++", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	window = SDL_CreateWindow("gb++", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
 	SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
 
 	SDL_RenderClear(renderer);
 
-	SDL_Surface* screen = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0x00FF0000,
+	screen = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0x00FF0000,
 		0x0000FF00, 0x000000FF, 0xFF000000);
 
-	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
 		SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	SDL_RenderPresent(renderer);
@@ -178,8 +181,6 @@ void Motherboard::run()
 		(16 * 8 * scale) + (16 * scale),
 		(32 * 8 * scale) + (64 * scale));*/
 
-	int current_frame = 0;
-	int step_count = 0;
 
 	running = true;
 
@@ -187,11 +188,11 @@ void Motherboard::run()
 		cpu.update_logfile();
 	}
 
+	std::thread cpu_thread(&Motherboard::run_cpu, this);
+
 	SDL_Event event;
 
 	while (running) {
-
-		cpu.step();
 
 		while (SDL_PollEvent(&event)) {
 
@@ -204,10 +205,29 @@ void Motherboard::run()
 			}
 
 			if (event.type == SDL_QUIT) {
+				thread_lock.lock();
 				running = false;
+				thread_lock.unlock();
 				break;
 			}
 		}
+
+	}
+
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
+
+}
+
+void Motherboard::run_cpu()
+{
+	int current_frame = 0;
+	int step_count = 0;
+
+	while (running) {
+
+		cpu.step();
 
 		if (current_frame != ppu.current_frame) {
 			current_frame++;
@@ -220,9 +240,5 @@ void Motherboard::run()
 		step_count++;
 
 	}
-
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
 
 }

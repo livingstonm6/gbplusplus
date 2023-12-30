@@ -8,6 +8,8 @@
 #include "Timer.h"
 #include "SDL.h"
 #include "APU.h"
+#include <mutex>
+
 
 class Motherboard
 {
@@ -18,6 +20,13 @@ class Motherboard
 	const int debug_height = 32 * 8 * scale;
 	u32 tile_colours[4] = { 0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000 };
 	void handle_input(bool, SDL_Keycode);
+	std::mutex thread_lock;
+	void run_cpu();
+
+	SDL_Window* window = nullptr;
+	SDL_Renderer* renderer = nullptr;
+	SDL_Surface* screen = nullptr;
+	SDL_Texture* texture = nullptr;
 
 public:
 	Cartridge cartridge;
@@ -28,7 +37,7 @@ public:
 	APU apu;
 	Timer timer;
 	PPUMemory ppu_memory;
-	std::string filename = "02-interrupts.gb";
+	std::string filename = "zelda.gb";
 
 	bool debug_window = true;
 

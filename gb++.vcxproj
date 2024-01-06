@@ -146,6 +146,14 @@
     <ClCompile Include="CPUContext.cpp" />
     <ClCompile Include="Emulator.cpp" />
     <ClCompile Include="FIFO.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_sdl2.cpp" />
+    <ClCompile Include="imgui\imgui_impl_sdlrenderer2.cpp" />
+    <ClCompile Include="imgui\imgui_stdlib.cpp" />
+    <ClCompile Include="imgui\imgui_tables.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="InstructionExecutor.cpp" />
     <ClCompile Include="Joypad.cpp" />
     <ClCompile Include="LCD.cpp" />
@@ -167,6 +175,15 @@
     <ClInclude Include="CPUContext.h" />
     <ClInclude Include="Emulator.h" />
     <ClInclude Include="FIFO.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_sdl2.h" />
+    <ClInclude Include="imgui\imgui_impl_sdlrenderer2.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imgui_stdlib.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="InstructionExecutor.h" />
     <ClInclude Include="instructions.h" />
     <ClInclude Include="Joypad.h" />
@@ -179,6 +196,12 @@
     <ClInclude Include="PPUMemory.h" />
     <ClInclude Include="Registers.h" />
     <ClInclude Include="Timer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="imgui\imgui.natstepfilter" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="imgui\imgui.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

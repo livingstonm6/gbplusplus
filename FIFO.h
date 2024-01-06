@@ -17,9 +17,6 @@ class FIFO
 	std::deque<u32> queue{};
 	
 public:
-	int map_y = 0;
-	int map_x = 0;
-	int tile_y = 0;
 	int fifo_x = 0;
 	int pushed_x = 0;
 	int line_x = 0;

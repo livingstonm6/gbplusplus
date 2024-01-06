@@ -62,16 +62,17 @@ void PPU::fetch_bg_tile()
 void PPU::fetch_window_tile()
 {
 	if (fifo.fetch_x + 7 >= lcd->window_x &&
-		fifo.fetch_x + 7 < lcd->window_x + Y_RES + 14) {
-		if (lcd->ly >= lcd->window_y && lcd->ly < lcd->window_y + X_RES) {
-			u8 window_tile_y = lcd->window_line / 8;
-			u16 address = lcd->get_window_tile_map() + ((fifo.fetch_x + 7 - lcd->window_x) / 8) + (window_tile_y * 32);
+		fifo.fetch_x < lcd->window_x + X_RES + 7 &&
+		lcd->ly >= lcd->window_y &&
+		lcd->ly < lcd->window_y + Y_RES) {
 
-			u8 data = bus->read(address);
+		u8 window_tile_y = lcd->window_line / 8;
+		u16 address = lcd->get_window_tile_map() + ((fifo.fetch_x + 7 - lcd->window_x) / 8) + (window_tile_y * 32);
+		
+		u8 data = bus->read(address);
 
-			fifo.bgw_fetch_data[0] = data;
-			window_fetched = true;
-		}
+		fifo.bgw_fetch_data[0] = data;
+		window_fetched = true;
 	}
 }
 
@@ -117,6 +118,7 @@ void PPU::fetch_sprite_data(bool offset) {
 
 void PPU::pipeline_fetch()
 {
+
 	switch (fifo.current_fetch_state) {
 	case FS_TILE: {
 		fetched_entries.clear();
@@ -147,6 +149,10 @@ void PPU::pipeline_fetch()
 		}
 		u8 bottom_4 = ((lcd->ly + lcd->scroll_y) % 8) << 1;
 
+		if (window_fetched) {
+			bottom_4 = (lcd->window_line % 8) << 1;
+		}
+
 		u16 address = (0b100 << 13) | (bit_12 << 12) | (fifo.bgw_fetch_data[0] << 4)
 			| bottom_4;
 
@@ -166,6 +172,10 @@ void PPU::pipeline_fetch()
 			bit_12 = !(fifo.bgw_fetch_data[0] >> 7);
 		}
 		u8 bottom_4 = (((lcd->ly + lcd->scroll_y) % 8) << 1) | 1;
+
+		if (window_fetched) {
+			bottom_4 = ((lcd->window_line % 8) << 1) | 1;
+		}
 
 		u16 address = (0b100 << 13) | (bit_12 << 12) | (fifo.bgw_fetch_data[0] << 4)
 			| bottom_4;
@@ -194,7 +204,7 @@ void PPU::pipeline_push_pixel()
 	if (fifo.size() >= 8) {
 		u32 pixel_data = fifo.pop();
 
-		if (fifo.line_x >= (lcd->scroll_x % 8)) {
+		if (fifo.line_x >= (lcd->scroll_x % 8) || window_fetched) {
 			u16 index = fifo.pushed_x + (lcd->ly * X_RES);
 			write_video_buffer(index, pixel_data);
 			fifo.pushed_x++;
@@ -205,7 +215,6 @@ void PPU::pipeline_push_pixel()
 
 void PPU::pipeline_process()
 {
-
 	if (!(line_ticks & 0b1)) {
 		pipeline_fetch();
 	}
@@ -251,9 +260,6 @@ void PPU::mode_oam()
 
 void PPU::mode_xfer(CPUContext* cpu)
 {
-	fifo.map_y = lcd->ly + lcd->scroll_y;
-	fifo.map_x = fifo.fifo_x + lcd->scroll_x;
-	fifo.tile_y = ((lcd->ly + lcd->scroll_y) % 8) * 2;
 	pipeline_process();
 	if (fifo.pushed_x >= X_RES) {
 		fifo.reset();

@@ -70,6 +70,7 @@ bool FIFO::add(LCD* lcd, std::vector<OAMEntry>* oam_ram)
 		return false;
 	}
 	int x = fetch_x - (8 - (lcd->scroll_x % 8));
+
 	for (u8 i = 0; i < 8; i++) {
 		u8 bit = 7 - i;
 		u8 low = !!(bgw_fetch_data[1] & (1 << bit));

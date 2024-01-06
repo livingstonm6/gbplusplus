@@ -52,7 +52,7 @@ void Motherboard::update_debug_window(SDL_Surface* screen, SDL_Texture* texture,
 
 }
 
-void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_Renderer* renderer)
+void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_Renderer* renderer, ImGuiIO& io)
 {
 
 	SDL_Rect r = { 0, 0, 2048, 2048 };
@@ -71,6 +71,37 @@ void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_R
 	SDL_UpdateTexture(texture, nullptr, screen->pixels, screen->pitch);
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+
+	// Render Gui
+	// TODO separate this from the game rendering
+	// Render gui at screen refresh then also render game whenever new frame is ready?
+
+	ImGui_ImplSDLRenderer2_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
+
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Open...")) {
+				// Get file
+			}
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Emulation")) {
+			if (ImGui::MenuItem("Pause")) {
+				paused = !paused;
+			}
+
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+	ImGui::Render();
+	SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+	SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
+	ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+
 	SDL_RenderPresent(renderer);
 
 }
@@ -163,24 +194,35 @@ void Motherboard::run()
 
 	SDL_RenderPresent(renderer);
 
+	// Main window GUI
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	ImGui::StyleColorsDark();
+	ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
+	ImGui_ImplSDLRenderer2_Init(renderer);
+
 
 	// Debug Window
+	if (show_debug_window) {
+		debug_window = SDL_CreateWindow("gb++ Tile Viewer",
+			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, debug_width,
+			debug_height, SDL_WINDOW_SHOWN);
+		debug_screen = SDL_CreateRGBSurface(0,
+			(16 * 8 * scale) + (16 * scale),
+			(32 * 8 * scale) + (64 * scale),
+			32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 
-	/*SDL_Window* debug_window = SDL_CreateWindow("gb++ Tile Viewer",
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, debug_width,
-		debug_height, SDL_WINDOW_SHOWN);
-	SDL_Surface* debug_screen = SDL_CreateRGBSurface(0,
-		(16 * 8 * scale) + (16 * scale),
-		(32 * 8 * scale) + (64 * scale),
-		32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+		debug_renderer = SDL_CreateRenderer(debug_window, -1, SDL_RENDERER_ACCELERATED);
 
-	SDL_Renderer* debug_renderer = SDL_CreateRenderer(debug_window, -1, SDL_RENDERER_ACCELERATED);
-
-	SDL_Texture* debug_texture = SDL_CreateTexture(debug_renderer,
-		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-		(16 * 8 * scale) + (16 * scale),
-		(32 * 8 * scale) + (64 * scale));*/
-
+		debug_texture = SDL_CreateTexture(debug_renderer,
+			SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+			(16 * 8 * scale) + (16 * scale),
+			(32 * 8 * scale) + (64 * scale));
+	}
 
 	running = true;
 
@@ -188,13 +230,15 @@ void Motherboard::run()
 		cpu.update_logfile();
 	}
 
-	std::thread cpu_thread(&Motherboard::run_cpu, this);
+	std::thread cpu_thread(&Motherboard::run_cpu, this, std::ref(io));
 
 	SDL_Event event;
 
 	while (running) {
 
 		while (SDL_PollEvent(&event)) {
+
+			ImGui_ImplSDL2_ProcessEvent(&event);
 
 			if (event.type == SDL_KEYDOWN) {
 				handle_input(true, event.key.keysym.sym);
@@ -214,31 +258,46 @@ void Motherboard::run()
 
 	}
 
+	ImGui_ImplSDLRenderer2_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
+
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 
 }
 
-void Motherboard::run_cpu()
+void Motherboard::run_cpu(ImGuiIO& io)
 {
 	int current_frame = 0;
 	int step_count = 0;
+	int start_time = SDL_GetTicks();
+	double frame_time_target = (double)1000 / 60;
 
 	while (running) {
 
-		cpu.step();
+		if (!paused) {
+			cpu.step();
+			step_count++;
+		}
 
-		if (current_frame != ppu.current_frame) {
-			current_frame++;
-			update_window(screen, texture, renderer);
-			//update_debug_window(debug_screen, debug_texture, debug_renderer);
+		int current_time = SDL_GetTicks();
+		if (current_frame != ppu.current_frame ||
+			(paused && (current_time - start_time > frame_time_target))
+			) {
+			
+			if (!paused) {
+				current_frame++;
+			}
+
+			start_time = SDL_GetTicks();
+			update_window(screen, texture, renderer, io);
+			if (show_debug_window) {
+				update_debug_window(debug_screen, debug_texture, debug_renderer);
+			}
 			step_count = 0;
 			cartridge.save_battery();
 		}
-
-		step_count++;
-
 	}
-
 }

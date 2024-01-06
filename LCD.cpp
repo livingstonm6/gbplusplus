@@ -204,8 +204,7 @@ bool LCD::window_visible()
 {
     const int y_res = 144;
     bool win_enable_bit = (lcd_control >> 5) & 1;
-    bool win_on_screen = window_x <= 166 && window_y >= 9 &&
-        window_y < y_res;
+    bool win_on_screen = 0 <= window_x <= 166 && 0 <= window_y < y_res;
     return win_enable_bit && win_on_screen;
 }
 

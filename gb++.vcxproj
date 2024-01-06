@@ -159,6 +159,7 @@
     <ClCompile Include="LCD.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MBC1.cpp" />
+    <ClCompile Include="MBC3.cpp" />
     <ClCompile Include="Motherboard.cpp" />
     <ClCompile Include="OAMEntry.cpp" />
     <ClCompile Include="PPU.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="LCD.h" />
     <ClInclude Include="MBC.h" />
     <ClInclude Include="MBC1.h" />
+    <ClInclude Include="MBC3.h" />
     <ClInclude Include="Motherboard.h" />
     <ClInclude Include="OAMEntry.h" />
     <ClInclude Include="PPU.h" />

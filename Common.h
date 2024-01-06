@@ -35,6 +35,13 @@ enum CartridgeType {
 	CT_MBC1_RAM_BAT = 0x03,
 	CT_MBC2 = 0x05,
 	CT_MBC2_BAT = 0x06,
+	CT_ROM_RAM = 0x08,
+	CT_ROM_RAM_BAT = 0x09,
+	CT_MBC3_TIMER_BAT = 0x0F,
+	CT_MBC3_TIMER_RAM_BAT = 0x10,
+	CT_MBC3 = 0x11,
+	CT_MBC3_RAM = 0x12,
+	CT_MBC3_RAM_BAT = 0x13
 };
 
 enum JoypadInputType {

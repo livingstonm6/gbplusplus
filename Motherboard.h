@@ -50,7 +50,7 @@ public:
 	APU apu;
 	Timer timer;
 	PPUMemory ppu_memory;
-	std::string filename = "zelda.gb";
+	std::string filename = "pokemon.gb";
 
 	bool show_debug_window = false;
 

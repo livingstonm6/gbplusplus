@@ -5,13 +5,7 @@
 class MemoryBank
 {
 public:
-	u8 data[0x4000];
-
-	MemoryBank() {
-		for (u16 i = 0; i < 0x4000; i++) {
-			data[i] = 0;
-		}
-	}
+	u8 data[0x4000]{};
 };
 
 class MBC

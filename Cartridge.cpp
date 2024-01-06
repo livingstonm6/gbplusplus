@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include "MBC1.h"
+#include "MBC3.h"
 
 void Cartridge::load_rom(std::string fname)
 {
@@ -49,6 +50,21 @@ void Cartridge::load_rom(std::string fname)
 		break;
 	case CT_MBC1_RAM_BAT:
 		mbc = std::make_unique<MBC1>(total_ram_banks, true, filename);
+		break;
+	case CT_MBC3:
+		mbc = std::make_unique<MBC3>(total_ram_banks, false, filename);
+		break;
+	case CT_MBC3_RAM:
+		mbc = std::make_unique<MBC3>(total_ram_banks, false, filename);
+		break;
+	case CT_MBC3_RAM_BAT:
+		mbc = std::make_unique<MBC3>(total_ram_banks, true, filename);
+		break;
+	case CT_MBC3_TIMER_BAT:
+		mbc = std::make_unique<MBC3>(total_ram_banks, true, filename);
+		break;
+	case CT_MBC3_TIMER_RAM_BAT:
+		mbc = std::make_unique<MBC3>(total_ram_banks, true, filename);
 		break;
 	}
 

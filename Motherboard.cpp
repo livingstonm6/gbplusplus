@@ -59,11 +59,12 @@ void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_R
 	for (int line_num = 0; line_num < ppu.Y_RES; line_num++) {
 		for (int x = 0; x < ppu.X_RES; x++) {
 			r.x = x * scale;
-			r.y = line_num * scale;
+			r.y = (line_num * scale) + menu_bar_height;
 			r.w = scale;
 			r.h = scale;
 			u16 address = x + (line_num * ppu.X_RES);
 			u32 buf = ppu.read_video_buffer(address);
+			
 			SDL_FillRect(screen, &r, buf);
 		}
 	}
@@ -81,6 +82,12 @@ void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_R
 	ImGui::NewFrame();
 
 	if (ImGui::BeginMainMenuBar()) {
+		if (!window_y_adjusted) {
+			menu_bar_height = (int)ImGui::GetWindowSize().y;
+			//SDL_SetWindowSize(window, SCREEN_WIDTH, SCREEN_WIDTH + menu_bar_height);
+
+			window_y_adjusted = true;
+		}
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Open...")) {
 				// Get file

@@ -17,11 +17,14 @@
 
 class Motherboard
 {
+	int menu_bar_height = 19;
 	const int SCREEN_WIDTH = 640;
-	const int SCREEN_HEIGHT = 576;
+	const int SCREEN_HEIGHT = 576 + menu_bar_height;
 	const int scale = 4;
 	const int debug_width = 16 * 8 * scale;
 	const int debug_height = 32 * 8 * scale;
+	bool window_y_adjusted = false;
+
 	u32 tile_colours[4] = { 0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000 };
 	void handle_input(bool, SDL_Keycode);
 	std::mutex thread_lock;
@@ -50,7 +53,7 @@ public:
 	APU apu;
 	Timer timer;
 	PPUMemory ppu_memory;
-	std::string filename = "pokemon.gb";
+	std::string filename = "drmario.gb";
 
 	bool show_debug_window = false;
 

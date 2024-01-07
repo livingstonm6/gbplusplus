@@ -20,7 +20,11 @@ void MBC3::load_battery()
 
 	int memory_bank_size = 0x4000;
 
-	file.read(reinterpret_cast<char*>(ram_banks[ram_bank_number].data), memory_bank_size);
+	for (auto& bank : ram_banks) {
+		file.read(reinterpret_cast<char*>(bank.data), memory_bank_size);
+	}
+
+	//file.read(reinterpret_cast<char*>(ram_banks[ram_bank_number].data), memory_bank_size);
 
 	file.close();
 
@@ -38,7 +42,11 @@ void MBC3::save_battery()
 
 		int memory_bank_size = 0x4000;
 
-		file.write(reinterpret_cast<char*>(ram_banks[ram_bank_number].data), memory_bank_size);
+		for (auto& bank : ram_banks) {
+			file.write(reinterpret_cast<char*>(bank.data), memory_bank_size);
+		}
+
+		//file.write(reinterpret_cast<char*>(ram_banks[ram_bank_number].data), memory_bank_size);
 
 		file.close();
 	}

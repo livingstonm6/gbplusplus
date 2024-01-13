@@ -12,9 +12,9 @@
 class PPU
 {
 	int LINES_PER_FRAME = 154;
-	const int TICKS_PER_LINE = 456;
+	int TICKS_PER_LINE = 456;
 
-	const double frame_time_target = (double)1000 / 60;
+	double frame_time_target = (double)1000 / 60;
 	long prev_frame_time{};
 	long start_timer{};
 	long frame_count{};
@@ -24,7 +24,7 @@ class PPU
 
 
 	// todo remove magic numbers
-	u32 video_buffer[144 * 160];
+	u32 video_buffer[144 * 160]{};
 
 	void fetch_bg_tile();
 	void fetch_window_tile();
@@ -35,18 +35,10 @@ class PPU
 public:
 	std::vector<OAMEntry> line_oam;
 	std::vector<OAMEntry> fetched_entries;
-	const int Y_RES = 144;
-	const int X_RES = 160;
+	int Y_RES = 144;
+	int X_RES = 160;
 	bool window_fetched = false;
 	bool sprite_fetched = false;
-
-	PPU() {
-
-		for (int i = 0; i < 144 * 160; i++) {
-			video_buffer[i] = 0;
-		}
-
-	}
 
 	long current_frame{};
 	FIFO fifo;

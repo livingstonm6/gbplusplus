@@ -12,7 +12,8 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl2.h"
 #include "imgui/imgui_impl_sdlrenderer2.h"
-#include <Windows.h>
+#include <thread>
+#include <memory>
 
 
 class Motherboard
@@ -28,7 +29,10 @@ class Motherboard
 	u32 tile_colours[4] = { 0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000 };
 	void handle_input(bool, SDL_Keycode);
 	std::mutex thread_lock;
-	void run_cpu(ImGuiIO&);
+	void run_cpu();
+
+	bool stop_cpu = false;
+	bool start_cpu = false;
 
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
@@ -40,31 +44,36 @@ class Motherboard
 	SDL_Surface* debug_screen = nullptr;
 	SDL_Texture* debug_texture = nullptr;
 
+	ImGuiIO io;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	HRESULT BasicFileOpen();
+	void init_rendering();
+	void render_gui();
+	
+	std::unique_ptr<std::thread> cpu_thread = nullptr;
 
 public:
-	Cartridge cartridge;
-	Bus bus;
-	CPU cpu;
-	PPU ppu;
-	LCD lcd;
-	APU apu;
-	Timer timer;
-	PPUMemory ppu_memory;
-	std::string filename = "drmario.gb";
+	Cartridge cartridge{};
+	Bus bus{};
+	CPU cpu{};
+	PPU ppu{};
+	LCD lcd{};
+	APU apu{};
+	Timer timer{};
+	PPUMemory ppu_memory{};
+	std::string filename{};
 
 	bool show_debug_window = false;
 
-	bool running = true;
+	bool emulator_running = false;
+	bool cpu_running = false;
 	bool paused = false;
 
 	Motherboard() { init(); }
 
 	void display_tile(SDL_Surface*, u16, int, int, int);
 	void update_debug_window(SDL_Surface*, SDL_Texture*, SDL_Renderer*);
-	void update_window(SDL_Surface*, SDL_Texture*, SDL_Renderer*, ImGuiIO&);
+	void update_window(SDL_Surface*, SDL_Texture*, SDL_Renderer*);
 	void init();
 	void run();
 };

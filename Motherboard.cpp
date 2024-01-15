@@ -78,15 +78,8 @@ void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_R
 	// TODO separate this from the game rendering
 	// Render gui at screen refresh then also render game whenever new frame is ready?
 
-	if (!emulator_running) {
-		return;
-	}
-
 	render_gui();
 
-	if (!emulator_running) {
-		return;
-	}
 	SDL_RenderPresent(renderer);
 
 }
@@ -313,10 +306,6 @@ void Motherboard::render_gui()
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
-	if (!emulator_running) {
-		return;
-	}
-
 	if (ImGui::BeginMainMenuBar()) {
 		if (!window_y_adjusted) {
 			menu_bar_height = (int)ImGui::GetWindowSize().y;
@@ -364,9 +353,7 @@ void Motherboard::render_gui()
 		}
 		ImGui::EndMainMenuBar();
 	}
-	if (!emulator_running) {
-		return;
-	}
+
 	ImGui::Render();
 	SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 	SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));

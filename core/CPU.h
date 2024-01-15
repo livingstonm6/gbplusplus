@@ -22,15 +22,8 @@ private:
 	//bool ime = false;
 	InstructionExecutor executor;
     void tick_ppu();
-    void fetch_sprite_tile();
-    void fetch_window_tile();
-    void fetch_sprite_data(bool);
     void check_ppu_interrupts();
-
     
-
-    
-
     std::map<u8, Instruction> INSTRUCTIONS {
         {u8 {0x00}, Instruction(IT_NOP, AM_IMP, RT_NONE, RT_NONE, CT_NONE, 0)},
         { u8 {0x01}, Instruction(IT_LD, AM_R_D16, RT_BC, RT_NONE, CT_NONE, 0) },

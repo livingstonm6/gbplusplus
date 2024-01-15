@@ -284,29 +284,6 @@ void CPU::fetch_data()
 }
 
 
-void CPU::fetch_sprite_data(bool offset) {
-
-	int i = 0;
-	for (auto& object : ppu->fetched_entries) {
-		u8 tile_y = ((lcd->ly + 16) - object.y) * 2;
-
-		if (object.y_flip) {
-			tile_y = ((lcd->get_sprite_height() * 2) - 2) - tile_y;
-		}
-
-		u8 tile_index = object.tile;
-		if (lcd->get_sprite_height() == 16) {
-			tile_index &= ~(1);
-		}
-
-		u16 address2 = 0x8000 + (tile_index * 16) + tile_y + offset;
-
-		ppu->fifo.fetch_entry_data[(i * 2) + offset] = bus->read(address2);
-
-		i++;
-	}
-}
-
 void CPU::tick_ppu()
 {
 	ppu->tick(&ctx);

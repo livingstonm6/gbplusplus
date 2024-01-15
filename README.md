@@ -2,6 +2,8 @@
 
 gb++ is a work-in-progress Nintendo Game Boy emulator written in C++.
 
+It runs many commercial games and passes many popular community test programs.
+
 Currently only Windows is supported.
 
 # Roadmap

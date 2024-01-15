@@ -139,13 +139,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="APU.cpp" />
-    <ClCompile Include="Bus.cpp" />
-    <ClCompile Include="Cartridge.cpp" />
-    <ClCompile Include="CPU.cpp" />
-    <ClCompile Include="Emulator.cpp" />
-    <ClCompile Include="FIFO.cpp" />
-    <ClCompile Include="FileOpenDialog.cpp" />
+    <ClCompile Include="core\APU.cpp" />
+    <ClCompile Include="core\Bus.cpp" />
+    <ClCompile Include="core\Cartridge.cpp" />
+    <ClCompile Include="core\CPU.cpp" />
+    <ClCompile Include="core\CPUContext.cpp" />
+    <ClCompile Include="core\FIFO.cpp" />
+    <ClCompile Include="core\InstructionExecutor.cpp" />
+    <ClCompile Include="core\Joypad.cpp" />
+    <ClCompile Include="core\LCD.cpp" />
+    <ClCompile Include="core\mbc\MBC1.cpp" />
+    <ClCompile Include="core\mbc\MBC3.cpp" />
+    <ClCompile Include="core\OAMEntry.cpp" />
+    <ClCompile Include="core\PPU.cpp" />
+    <ClCompile Include="core\PPUMemory.cpp" />
+    <ClCompile Include="core\Registers.cpp" />
+    <ClCompile Include="core\Timer.cpp" />
+    <ClCompile Include="core\utility\FileOpenDialog.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -154,29 +164,30 @@
     <ClCompile Include="imgui\imgui_stdlib.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="InstructionExecutor.cpp" />
-    <ClCompile Include="Joypad.cpp" />
-    <ClCompile Include="LCD.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MBC1.cpp" />
-    <ClCompile Include="MBC3.cpp" />
     <ClCompile Include="Motherboard.cpp" />
-    <ClCompile Include="OAMEntry.cpp" />
-    <ClCompile Include="PPU.cpp" />
-    <ClCompile Include="PPUMemory.cpp" />
-    <ClCompile Include="Registers.cpp" />
-    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="APU.h" />
-    <ClInclude Include="Bus.h" />
-    <ClInclude Include="Cartridge.h" />
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="CPU.h" />
-    <ClInclude Include="CPUContext.h" />
-    <ClInclude Include="Emulator.h" />
-    <ClInclude Include="FIFO.h" />
-    <ClInclude Include="FileOpenDialog.h" />
+    <ClInclude Include="core\APU.h" />
+    <ClInclude Include="core\Bus.h" />
+    <ClInclude Include="core\Cartridge.h" />
+    <ClInclude Include="core\CPU.h" />
+    <ClInclude Include="core\CPUContext.h" />
+    <ClInclude Include="core\FIFO.h" />
+    <ClInclude Include="core\InstructionExecutor.h" />
+    <ClInclude Include="core\instructions.h" />
+    <ClInclude Include="core\Joypad.h" />
+    <ClInclude Include="core\LCD.h" />
+    <ClInclude Include="core\mbc\MBC.h" />
+    <ClInclude Include="core\mbc\MBC1.h" />
+    <ClInclude Include="core\mbc\MBC3.h" />
+    <ClInclude Include="core\OAMEntry.h" />
+    <ClInclude Include="core\PPU.h" />
+    <ClInclude Include="core\PPUMemory.h" />
+    <ClInclude Include="core\Registers.h" />
+    <ClInclude Include="core\Timer.h" />
+    <ClInclude Include="core\utility\Common.h" />
+    <ClInclude Include="core\utility\FileOpenDialog.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_sdl2.h" />
@@ -186,19 +197,7 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="InstructionExecutor.h" />
-    <ClInclude Include="instructions.h" />
-    <ClInclude Include="Joypad.h" />
-    <ClInclude Include="LCD.h" />
-    <ClInclude Include="MBC.h" />
-    <ClInclude Include="MBC1.h" />
-    <ClInclude Include="MBC3.h" />
     <ClInclude Include="Motherboard.h" />
-    <ClInclude Include="OAMEntry.h" />
-    <ClInclude Include="PPU.h" />
-    <ClInclude Include="PPUMemory.h" />
-    <ClInclude Include="Registers.h" />
-    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui\imgui.natstepfilter" />

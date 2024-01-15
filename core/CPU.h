@@ -1,6 +1,6 @@
 #pragma once
 #include "Registers.h"
-#include "Common.h"
+#include "utility/Common.h"
 #include "Bus.h"
 #include "InstructionExecutor.h"
 #include "CPUContext.h"

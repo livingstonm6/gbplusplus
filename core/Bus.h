@@ -1,5 +1,5 @@
 #pragma once
-#include "common.h"
+#include "utility/Common.h"
 #include "Timer.h"
 #include "Cartridge.h"
 #include "LCD.h"

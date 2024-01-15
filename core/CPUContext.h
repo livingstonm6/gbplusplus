@@ -1,7 +1,7 @@
 #pragma once
 #include "Registers.h"
 #include "instructions.h"
-#include "common.h"
+#include "utility/Common.h"
 #include <vector>
 
 class CPUContext

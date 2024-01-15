@@ -1,8 +1,8 @@
 #include "Cartridge.h"
 #include <fstream>
 #include <iostream>
-#include "MBC1.h"
-#include "MBC3.h"
+#include "mbc/MBC1.h"
+#include "mbc/MBC3.h"
 
 void Cartridge::load_rom(std::string fname)
 {

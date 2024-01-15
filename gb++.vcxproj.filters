@@ -16,57 +16,30 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{aefc10cb-c9f1-4e15-a5e1-c44aac0d7d07}</UniqueIdentifier>
     </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{f2de51b7-216a-4054-8137-a066c844d19c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\Header Files">
+      <UniqueIdentifier>{7e73f699-29e4-4de4-878e-beeb7d690dfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\Source Files">
+      <UniqueIdentifier>{0bd6a375-6e8e-4f84-9573-86ced39e16fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\mbc">
+      <UniqueIdentifier>{3f990533-4665-48de-b1e9-852b735bb688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\mbc\Header Files">
+      <UniqueIdentifier>{19f27580-8e4a-41d7-b1c8-2ffe6780b0c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\mbc\Source Files">
+      <UniqueIdentifier>{a24fedfc-5130-4572-ab0d-7b555459f29b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\utility">
+      <UniqueIdentifier>{e03f11c4-f01a-44d0-a4ae-0e4c4484096d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Bus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cartridge.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CPU.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Emulator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FIFO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="InstructionExecutor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LCD.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Motherboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PPU.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Registers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OAMEntry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Joypad.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="APU.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MBC1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PPUMemory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">
@@ -93,74 +66,62 @@
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="MBC3.cpp">
+    <ClCompile Include="core\APU.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Bus.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Cartridge.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\CPU.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\CPUContext.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\FIFO.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\InstructionExecutor.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Joypad.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\OAMEntry.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\PPU.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\PPUMemory.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Registers.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Timer.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\LCD.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\utility\FileOpenDialog.cpp">
+      <Filter>core\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Motherboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FileOpenDialog.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="core\mbc\MBC1.cpp">
+      <Filter>core\mbc\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\mbc\MBC3.cpp">
+      <Filter>core\mbc\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bus.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cartridge.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPU.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPUContext.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Emulator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FIFO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="InstructionExecutor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="instructions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LCD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Motherboard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PPU.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Registers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OAMEntry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Joypad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="APU.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MBC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MBC1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PPUMemory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
       <Filter>imgui</Filter>
     </ClInclude>
@@ -188,11 +149,68 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="MBC3.h">
+    <ClInclude Include="core\FIFO.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\InstructionExecutor.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\instructions.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Joypad.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\LCD.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\OAMEntry.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\PPU.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\PPUMemory.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Registers.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Timer.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\APU.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Bus.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Cartridge.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\CPU.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\CPUContext.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\utility\Common.h">
+      <Filter>core\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="core\utility\FileOpenDialog.h">
+      <Filter>core\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Motherboard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileOpenDialog.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="core\mbc\MBC.h">
+      <Filter>core\mbc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\mbc\MBC1.h">
+      <Filter>core\mbc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\mbc\MBC3.h">
+      <Filter>core\mbc\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

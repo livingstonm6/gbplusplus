@@ -1,5 +1,5 @@
 #pragma once
-#include "common.h"
+#include "utility/Common.h"
 
 enum InstructionType {
 	IT_NOP = 1,

@@ -1,8 +1,8 @@
 
-#include "Emulator.h"
+#include "Motherboard.h"
 int main(int arc, char* argv[]) {
 
-	Emulator emulator;
+	Motherboard emulator;
 
 	emulator.run();
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "common.h"
+#include "utility/Common.h"
 class Timer
 {
 	int ticks{};

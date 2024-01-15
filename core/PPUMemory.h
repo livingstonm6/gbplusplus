@@ -1,5 +1,5 @@
 #pragma once
-#include "Common.h"
+#include "utility/Common.h"
 #include <vector>
 #include "OAMEntry.h"
 class PPUMemory

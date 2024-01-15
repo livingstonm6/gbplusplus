@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "Common.h"
+#include "utility/Common.h"
 #include <memory>
-#include "MBC.h"
+#include "mbc/MBC.h"
 
 class ROMHeader
 {

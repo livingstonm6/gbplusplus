@@ -1,18 +1,18 @@
 #pragma once
-#include "Cartridge.h"
-#include "Bus.h"
-#include "CPU.h"
-#include "PPU.h"
-#include "LCD.h"
-#include <string>
-#include "Timer.h"
+#include "core/Cartridge.h"
+#include "core/Bus.h"
+#include "core/CPU.h"
+#include "core/PPU.h"
+#include "core/LCD.h"
+#include "core/Timer.h"
+#include "core/APU.h"
 #include "SDL.h"
-#include "APU.h"
-#include <mutex>
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl2.h"
 #include "imgui/imgui_impl_sdlrenderer2.h"
+#include <string>
 #include <thread>
+#include <mutex>
 #include <memory>
 
 

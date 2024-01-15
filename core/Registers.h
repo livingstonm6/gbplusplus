@@ -1,6 +1,6 @@
 #pragma once
 #include "instructions.h"
-#include "common.h"
+#include "utility/Common.h"
 
 class Registers
 {

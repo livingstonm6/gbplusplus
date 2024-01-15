@@ -1,7 +1,7 @@
 #include "Motherboard.h"
 #include <fstream>
 #include <iostream>
-#include "FileOpenDialog.h"
+#include "core/utility/FileOpenDialog.h"
 #include <chrono>
 
 void Motherboard::display_tile(SDL_Surface* screen, u16 address, int tile_num, int x, int y)

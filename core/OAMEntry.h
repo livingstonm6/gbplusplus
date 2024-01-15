@@ -1,5 +1,5 @@
 #pragma once
-#include "Common.h"
+#include "utility/Common.h"
 class OAMEntry {
 public:
 	u8 y = 0;

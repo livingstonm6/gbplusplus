@@ -230,9 +230,9 @@ void Motherboard::run()
 			}
 
 			if (event.type == SDL_QUIT) {
-				thread_lock.lock();
 				emulator_running = false;
-				thread_lock.unlock();
+				stop_cpu = true;
+				start_cpu = false;
 				break;
 			}
 		}
@@ -244,7 +244,9 @@ void Motherboard::run()
 			}
 			stop_cpu = false;
 			cpu_thread = nullptr;
-			init();
+			if (emulator_running) {
+				init();
+			}
 		}
 
 		if (start_cpu) {
@@ -253,7 +255,7 @@ void Motherboard::run()
 			start_cpu = false;
 		}
 
-		if (!cpu_running) {
+		if (!cpu_running && emulator_running) {
 			// Render GUI if emulation hasn't started or was closed
 			SDL_RenderClear(renderer);
 			render_gui();

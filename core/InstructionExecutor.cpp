@@ -1,7 +1,7 @@
 #include "InstructionExecutor.h"
 #include <iostream>
 
-void InstructionExecutor::execute(CPUContext* cpu, Bus* bus)
+void InstructionExecutor::execute_instruction(CPUContext* cpu, Bus* bus)
 {
 	Instruction inst = cpu->current_instruction;
 	(this->*processor_functions[inst.type])(cpu, bus);
@@ -66,7 +66,7 @@ void InstructionExecutor::go_to(CPUContext* cpu, Bus* bus, u16 address, bool pus
 
 void InstructionExecutor::proc_ld(CPUContext* cpu, Bus* bus)
 {	
-	if (cpu->destination_is_memory) {
+	if (cpu->writing_to_memory) {
 		cpu->cycles_to_increment++;
 		if (cpu->current_instruction.reg1 == RT_HL) {
 			bus->write(cpu->memory_destination, cpu->fetched_data);
@@ -130,7 +130,7 @@ void InstructionExecutor::proc_adc(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_di(CPUContext* cpu, Bus* bus)
 {
-	cpu->ime = false;
+	cpu->interrupt_master_enable = false;
 }
 
 void InstructionExecutor::proc_xor(CPUContext* cpu, Bus* bus)
@@ -200,7 +200,7 @@ void InstructionExecutor::proc_ret(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_reti(CPUContext* cpu, Bus* bus)
 {
-	cpu->ime = true;
+	cpu->interrupt_master_enable = true;
 	proc_ret(cpu, bus);
 }
 

@@ -12,7 +12,6 @@
 #include "imgui/imgui_impl_sdlrenderer2.h"
 #include <string>
 #include <thread>
-#include <mutex>
 #include <memory>
 
 
@@ -28,7 +27,6 @@ class Motherboard
 
 	u32 tile_colours[4] = { 0xFFFFFFFF, 0xFFAAAAAA, 0xFF555555, 0xFF000000 };
 	void handle_input(bool, SDL_Keycode);
-	std::mutex thread_lock;
 	void run_cpu();
 
 	bool stop_cpu = false;

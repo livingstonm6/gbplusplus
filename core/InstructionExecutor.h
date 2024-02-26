@@ -44,7 +44,7 @@ public:
 		{IT_CPL,  &InstructionExecutor::proc_cpl  },
 	};
 
-	void execute(CPUContext* cpu, Bus* bus);
+	void execute_instruction(CPUContext* cpu, Bus* bus);
 
 
 	void stack_push(CPUContext* cpu, Bus* bus, u8 data);

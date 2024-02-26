@@ -143,7 +143,7 @@
     <ClCompile Include="core\Bus.cpp" />
     <ClCompile Include="core\Cartridge.cpp" />
     <ClCompile Include="core\CPU.cpp" />
-    <ClCompile Include="core\CPUContext.cpp" />
+    <ClCompile Include="core\CPUDataFetcher.cpp" />
     <ClCompile Include="core\FIFO.cpp" />
     <ClCompile Include="core\InstructionExecutor.cpp" />
     <ClCompile Include="core\Joypad.cpp" />
@@ -154,6 +154,7 @@
     <ClCompile Include="core\PPU.cpp" />
     <ClCompile Include="core\PPUMemory.cpp" />
     <ClCompile Include="core\Registers.cpp" />
+    <ClCompile Include="core\SquareWaveChannel.cpp" />
     <ClCompile Include="core\Timer.cpp" />
     <ClCompile Include="core\utility\FileOpenDialog.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -169,10 +170,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\APU.h" />
+    <ClInclude Include="core\AudioChannel.h" />
     <ClInclude Include="core\Bus.h" />
     <ClInclude Include="core\Cartridge.h" />
     <ClInclude Include="core\CPU.h" />
     <ClInclude Include="core\CPUContext.h" />
+    <ClInclude Include="core\CPUDataFetcher.h" />
     <ClInclude Include="core\FIFO.h" />
     <ClInclude Include="core\InstructionExecutor.h" />
     <ClInclude Include="core\instructions.h" />
@@ -185,6 +188,7 @@
     <ClInclude Include="core\PPU.h" />
     <ClInclude Include="core\PPUMemory.h" />
     <ClInclude Include="core\Registers.h" />
+    <ClInclude Include="core\SquareWaveChannel.h" />
     <ClInclude Include="core\Timer.h" />
     <ClInclude Include="core\utility\Common.h" />
     <ClInclude Include="core\utility\FileOpenDialog.h" />

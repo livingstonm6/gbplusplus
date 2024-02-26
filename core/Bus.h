@@ -64,7 +64,7 @@ public:
 	void debug_print();
 
 	void dma_start(u8 start);
-	void dma_tick();
+	void tick_dma();
 
 	void update_joypad(JoypadInputType, bool);
 

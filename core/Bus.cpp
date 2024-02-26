@@ -229,7 +229,7 @@ void Bus::dma_start(u8 start)
 	dma_value = start;
 }
 
-void Bus::dma_tick()
+void Bus::tick_dma()
 {
 	if (!dma_active) {
 		return;

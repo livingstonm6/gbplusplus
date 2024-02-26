@@ -117,7 +117,7 @@ void LCD::increment_ly(CPUContext* cpu)
     if (ly == ly_compare) {
         set_lyc_flag();
         if (get_interrupt_status(ISM_LYC)) {
-            cpu->ppu_interrupt_queue.push_back(IT_LCD_STAT);
+            cpu->ppu_interrupts.push_back(IT_LCD_STAT);
         }
     }
     else {

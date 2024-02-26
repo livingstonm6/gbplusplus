@@ -104,12 +104,8 @@ void Motherboard::init()
 	}
 
 	bus.connect(&ppu_memory, &lcd, &cartridge, &timer, &apu);
-	cpu.connect(&bus, &timer, &ppu, &lcd);
+	cpu.connect(&bus, &timer, &ppu);
 	ppu.connect(&lcd, &ppu_memory, &bus);
-
-	if (cpu.debug_logging) {
-		cpu.update_logfile();
-	}
 
 	emulator_running = true;
 }
@@ -358,5 +354,4 @@ void Motherboard::render_gui()
 	SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 	SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
 	ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-
 }

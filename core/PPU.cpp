@@ -265,7 +265,7 @@ void PPU::mode_xfer(CPUContext* cpu)
 		fifo.reset();
 		lcd->set_lcd_mode(LM_H_BLANK);
 		if (lcd->get_interrupt_status(ISM_H_BLANK)) {
-			cpu->ppu_interrupt_queue.push_back(IT_LCD_STAT);
+			cpu->ppu_interrupts.push_back(IT_LCD_STAT);
 		}
 	}
 }
@@ -290,9 +290,9 @@ void PPU::mode_hblank(CPUContext* cpu)
 		lcd->increment_ly(cpu);
 		if (lcd->ly >= Y_RES) {
 			lcd->set_lcd_mode(LM_V_BLANK);
-			cpu->ppu_interrupt_queue.push_back(IT_VBLANK);
+			cpu->ppu_interrupts.push_back(IT_VBLANK);
 			if (lcd->get_interrupt_status(ISM_V_BLANK)) {
-				cpu->ppu_interrupt_queue.push_back(IT_LCD_STAT);
+				cpu->ppu_interrupts.push_back(IT_LCD_STAT);
 			}
 			current_frame++;
 

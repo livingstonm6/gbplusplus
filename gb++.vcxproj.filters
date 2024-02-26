@@ -78,9 +78,6 @@
     <ClCompile Include="core\CPU.cpp">
       <Filter>core\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="core\CPUContext.cpp">
-      <Filter>core\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="core\FIFO.cpp">
       <Filter>core\Source Files</Filter>
     </ClCompile>
@@ -119,6 +116,12 @@
     </ClCompile>
     <ClCompile Include="core\mbc\MBC3.cpp">
       <Filter>core\mbc\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\SquareWaveChannel.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\CPUDataFetcher.cpp">
+      <Filter>core\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -211,6 +214,15 @@
     </ClInclude>
     <ClInclude Include="core\mbc\MBC3.h">
       <Filter>core\mbc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\AudioChannel.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\SquareWaveChannel.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\CPUDataFetcher.h">
+      <Filter>core\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

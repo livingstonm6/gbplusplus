@@ -1,4 +1,4 @@
-
+//
 #include "Motherboard.h"
 
 int main(int arc, char* argv[]) {
@@ -11,66 +11,146 @@ int main(int arc, char* argv[]) {
 }
 
 
+//#include <stdio.h>
+//#include <SDL.h>
+//#include <iostream>
+//
+//
+//int main(int arc, char* argv[]) {
+//
+//    SDL_Init(SDL_INIT_AUDIO);
+//
+//	SDL_AudioDeviceID audio_device;
+//
+//    // opening an audio device:
+//    SDL_AudioSpec audio_spec;
+//    SDL_zero(audio_spec);
+//    audio_spec.freq = 44100;
+//    audio_spec.format = AUDIO_F32;
+//    audio_spec.channels = 1;
+//    audio_spec.samples = 1024;
+//    audio_spec.callback = NULL;
+//
+//    audio_device = SDL_OpenAudioDevice(
+//        NULL, 0, &audio_spec, NULL, 0);
+//
+//    
+//
+//    // pushing 3 seconds of samples to the audio buffer:
+//    int x = 0;
+//    for (int i = 0; i < audio_spec.freq * 3; i++) {
+//        
+//        float sample = 1000.0f / 100.0f;
+//        if (i % 80 == 0) {
+//            x++;
+//            if (x % 8 == 0 || x % 8 == 1) {
+//                sample = 0;
+//            }
+//        }
+//
+//        // SDL_QueueAudio expects a signed 16-bit value
+//        // note: "5000" here is just gain so that we will hear something
+//        //int16_t sample = sin(x * 4) * 5000;
+//        std::cout << sample << "\n";
+//
+//        const int sample_size = sizeof(float) * 1;
+//        SDL_QueueAudio(audio_device, &sample, sample_size);
+//    }
+//
+//    std::cout << SDL_GetQueuedAudioSize(audio_device) / sizeof(int16_t);
+//
+//    SDL_PauseAudioDevice(audio_device, 0);
+//
+//    // unpausing the audio device (starts playing):
+//    //SDL_PauseAudioDevice(audio_device, 0);
+//
+//    SDL_Delay(3000);
+//
+//    SDL_CloseAudioDevice(audio_device);
+//    SDL_Quit();
+//
+//	return 0;
+//}
+
+
+
 
 //#pragma once
 //#include <SDL.h>
 //#include <iostream>
-//#include <cmath>
-//#include "core/utility/Common.h"
 //
 //const int SAMPLE_RATE = 44100;
-//const int AMPLITUDE = 32767;
-//const double FREQUENCY = 440.0; // Hz
+//const int BUFFER_SIZE = 4096;
 //
-//void generateSineWave(Sint16* buffer, int length) {
-//    for (int i = 0; i < length; ++i) {
-//        double time = static_cast<double>(i) / SAMPLE_RATE;
-//        double value = std::sin(2.0 * M_PI * FREQUENCY * time);
-//        buffer[i] = static_cast<Sint16>(AMPLITUDE * value);
-//    }
+//typedef struct {
+//	float current_step;
+//	float step_size;
+//	float volume;
+//} oscillator;
+//
+//oscillator oscillate(float rate, float volume) {
+//	oscillator o;
+//	o.current_step = 0;
+//	o.volume = volume;
+//	o.step_size = (2 * M_PI) / rate;
+//
+//	return o;
 //}
 //
-//int main() {
-//    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-//        std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
-//        return 1;
-//    }
+//float next(oscillator* os) {
+//	os->current_step += os->step_size;
+//	return sinf(os->current_step) * os->volume;
+//}
 //
-//    SDL_AudioSpec spec;
-//    spec.freq = SAMPLE_RATE;
-//    spec.format = AUDIO_S16SYS;
-//    spec.channels = 1;
-//    spec.samples = 4096;
-//    spec.callback = nullptr; // No callback function
 //
-//    SDL_AudioDeviceID audioDevice = SDL_OpenAudioDevice(nullptr, 0, &spec, nullptr, 0);
-//    if (audioDevice == 0) {
-//        std::cerr << "Failed to open audio device: " << SDL_GetError() << std::endl;
-//        SDL_Quit();
-//        return 1;
-//    }
+//float a4_freq = (float)SAMPLE_RATE / 440.00f;
+//oscillator a4 = oscillate(a4_freq, 0.1f);
 //
-//    SDL_PauseAudioDevice(audioDevice, 0); // Unpause audio device
+//void callback(void* userData, uint8_t* stream, int len) {
+//	float* fstream = (float*)stream;
+//	for (int i = 0; i < BUFFER_SIZE; i++) {
+//		float v = next(&a4);
+//		fstream[i] = v;
+//	}
 //
-//    const int BUFFER_SIZE = spec.samples;
-//    Sint16* buffer = new Sint16[BUFFER_SIZE];
+//}
 //
-//    generateSineWave(buffer, BUFFER_SIZE);
+//int main(int arc, char* argv[]) {
+//	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0){
+//		std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
+//		return 1;
+//	}
 //
-//    int index = 0;
-//    while (true) {
-//        SDL_QueueAudio(audioDevice, buffer, sizeof(buffer));
-//        SDL_Delay(100); // Adjust the delay based on your requirements
+//	SDL_AudioSpec spec;
 //
-//        // Break the loop after a certain duration or condition
-//        if (++index > 100) {
-//            break;
-//        }
-//    }
+//	spec.format = AUDIO_F32;
+//	spec.channels = 1;
+//	spec.freq = SAMPLE_RATE;
+//	spec.samples = BUFFER_SIZE;
+//	spec.callback = callback;
 //
-//    delete[] buffer;
-//    SDL_CloseAudioDevice(audioDevice);
-//    SDL_Quit();
+//	if (SDL_OpenAudio(&spec, NULL) < 0) {
+//		std::cerr << "Failed to open audio device: " << SDL_GetError() << std::endl;
+//		return 1;
+//	}
 //
-//    return 0;
+//	SDL_PauseAudio(0);
+//
+//	while (true) {
+//		SDL_Event e;
+//
+//		while (SDL_PollEvent(&e)) {
+//			switch (e.type) {
+//			case SDL_QUIT:
+//				return 0;
+//			}
+//		}
+//	}
+//
+//
+//
+//
+//	SDL_Quit();
+//
+//	return 0;
 //}

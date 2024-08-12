@@ -1,4 +1,35 @@
 #include "APU.h"
+#include <iostream>
+
+void APU::gather_samples()
+{
+	float sample = c1.get_sample() + c2.get_sample();
+	back_buffer.push_back(sample);
+	if (back_buffer.size() > BUFFER_SIZE) {
+		back_buffer.erase(back_buffer.begin());
+	}
+	
+}
+
+void APU::output_audio()
+{
+	int queued_audio = SDL_GetQueuedAudioSize(device);
+
+	if (queued_audio) {
+		return;
+	}
+
+
+	front_buffer = std::vector<float>(back_buffer);
+
+	const int sample_size = BUFFER_SIZE * sizeof(float);
+	SDL_QueueAudio(device, front_buffer.data(), sample_size);
+
+	total_output_samples += BUFFER_SIZE;
+
+	back_buffer.clear();
+
+}
 
 void APU::write(u16 address, u8 value)
 {
@@ -7,32 +38,11 @@ void APU::write(u16 address, u8 value)
 		return;
 	}
 
-	if (address == 0xFF10) {
-		c1_sweep = value;
+	if (address < 0xFF15) {
+		c1.write(address, value);
 	}
-	else if (address == 0xFF11) {
-		c1_timer = value;
-	}
-	else if (address == 0xFF12) {
-		c1_volume_envelope = value;
-	}
-	else if (address == 0xFF13) {
-		c1_period_low = value;
-	}
-	else if (address == 0xFF14) {
-		c1_period_high_control = value;
-	}
-	else if (address == 0xFF16) {
-		c2_timer = value;
-	}
-	else if (address == 0xFF17) {
-		c2_volume_envelope = value;
-	}
-	else if (address == 0xFF18) {
-		c2_period_low = value;
-	}
-	else if (address == 0xFF19) {
-		c2_period_high_control = value;
+	else if (address < 0xFF1A) {
+		c2.write(address, value);
 	}
 	else if (address == 0xFF1A) {
 		c3_dac_enable = value;
@@ -78,32 +88,11 @@ void APU::write(u16 address, u8 value)
 u8 APU::read(u16 address)
 {
 
-	if (address == 0xFF10) {
-		return c1_sweep;
+	if (address < 0xFF15) {
+		return c1.read(address);
 	}
-	else if (address == 0xFF11) {
-		return c1_timer;
-	}
-	else if (address == 0xFF12) {
-		return c1_volume_envelope;
-	}
-	else if (address == 0xFF13) {
-		return c1_period_low;
-	}
-	else if (address == 0xFF14) {
-		return c1_period_high_control;
-	}
-	else if (address == 0xFF16) {
-		return c2_timer;
-	}
-	else if (address == 0xFF17) {
-		return c2_volume_envelope;
-	}
-	else if (address == 0xFF18) {
-		return c2_period_low;
-	}
-	else if (address == 0xFF19) {
-		return c2_period_high_control;
+	else if (address < 0xFF1A) {
+		return c2.read(address);
 	}
 	else if (address == 0xFF1A) {
 		return c3_dac_enable;
@@ -139,25 +128,10 @@ u8 APU::read(u16 address)
 		return sound_panning;
 	}
 	else if (address == 0xFF26) {
-		return audio_master_control;
+		return (apu_enabled() << 7) | (c2.is_enabled() << 1);
 	}
 	else if (0xFF30 <= address <= 0xFF3F) {
 		return c3_wave_pattern_ram[address & 0xF];
-	}
-
-}
-
-bool APU::channel_enabled(AudioChannelType channel)
-{
-	switch (channel) {
-	case ACT_1:
-		return audio_master_control & 1;
-	case ACT_2:
-		return audio_master_control & 0b10;
-	case ACT_3:
-		return audio_master_control & 0b100;
-	case ACT_4:
-		return audio_master_control & 0b1000;
 	}
 
 }
@@ -169,4 +143,36 @@ bool APU::apu_enabled()
 
 void APU::tick()
 {
+	if (!apu_enabled()) {
+		return;
+	}
+
+	tick_count++;
+	c1.tick();
+	c2.tick();
+	if (tick_count % 95 == 0) { // ~44100hz sample rate
+		gather_samples();
+		if (back_buffer.size() == BUFFER_SIZE) {
+			output_audio();
+		}
+
+	}
+	if (tick_count % 8192 == 0) {
+		frame_sequencer++;
+		if (frame_sequencer > 7) {
+			frame_sequencer = 0;
+		}
+
+		if (frame_sequencer % 2 == 0) {
+			c1.tick_length();
+			c2.tick_length();
+		}
+		if (frame_sequencer == 7) {
+			c1.tick_envelope();
+			c2.tick_envelope();
+		}
+		if (frame_sequencer == 2 || frame_sequencer == 6) {
+			c1.tick_sweep();
+		}
+	}
 }

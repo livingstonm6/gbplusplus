@@ -74,10 +74,6 @@ void Motherboard::update_window(SDL_Surface* screen, SDL_Texture* texture, SDL_R
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
-	// Render Gui
-	// TODO separate this from the game rendering
-	// Render gui at screen refresh then also render game whenever new frame is ready?
-
 	render_gui();
 
 	SDL_RenderPresent(renderer);
@@ -91,6 +87,7 @@ void Motherboard::init()
 
 	if (!emulator_running) {
 		init_rendering();
+		init_audio();
 	}
 	else {
 		cartridge = Cartridge();
@@ -98,13 +95,13 @@ void Motherboard::init()
 		cpu = CPU();
 		ppu = PPU();
 		lcd = LCD();
-		apu = APU();
+		apu = APU(device);
 		timer = Timer();
 		ppu_memory = PPUMemory();
 	}
 
 	bus.connect(&ppu_memory, &lcd, &cartridge, &timer, &apu);
-	cpu.connect(&bus, &timer, &ppu);
+	cpu.connect(&bus, &timer, &ppu, &apu);
 	ppu.connect(&lcd, &ppu_memory, &bus);
 
 	emulator_running = true;
@@ -112,7 +109,7 @@ void Motherboard::init()
 
 void Motherboard::init_rendering()
 {
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
 	// Main Window
 
@@ -161,6 +158,42 @@ void Motherboard::init_rendering()
 			(32 * 8 * scale) + (64 * scale));
 	}
 
+}
+
+void Motherboard::init_audio()
+{
+	SDL_zero(spec);
+
+	spec.format = AUDIO_F32;
+	spec.channels = 1;
+	spec.freq = SAMPLE_RATE;
+	spec.samples = BUFFER_SIZE;
+	spec.callback = NULL;
+
+	device = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
+
+	if (device == 0) {
+		std::cerr << "Error opening audio device." << std::endl;
+		exit(-2);
+	}
+	std::cout << "device: " << device << "\n";
+
+	SDL_PauseAudioDevice(device, 0);
+
+	SDL_AudioStatus status = SDL_GetAudioDeviceStatus(device);
+	switch (status) {
+	case SDL_AUDIO_STOPPED:
+		std::cout << "Audio device stopped\n";
+		break;
+	case SDL_AUDIO_PLAYING:
+		std::cout << "Audio device playing\n";
+		break;
+	case SDL_AUDIO_PAUSED:
+		std::cout << "Audio device paused\n";
+		break;
+	}
+
+	std::cout << "Audio initialized\n";
 }
 
 void Motherboard::handle_input(bool down, SDL_Keycode key)

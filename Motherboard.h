@@ -46,7 +46,11 @@ class Motherboard
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	void init_rendering();
+	void init_audio();
 	void render_gui();
+
+	SDL_AudioSpec spec;
+	SDL_AudioDeviceID device = 0;
 	
 	std::unique_ptr<std::thread> cpu_thread = nullptr;
 
@@ -56,7 +60,7 @@ public:
 	CPU cpu{};
 	PPU ppu{};
 	LCD lcd{};
-	APU apu{};
+	APU apu = APU(device);
 	Timer timer{};
 	PPUMemory ppu_memory{};
 	std::string filename{};

@@ -35,7 +35,7 @@ public:
     * Motherboard has ownership.
     */
 
-    void connect(Bus* bus_param, Timer* timer_param, PPU* ppu_param);
+    void connect(Bus* bus_param, Timer* timer_param, PPU* ppu_param, APU* apu_param);
 
     /**
     * Executes one CPU instruction, if not halted. Then, checks
@@ -49,6 +49,7 @@ private:
 	Bus* bus = nullptr;                 // Read/write data
     Timer* timer = nullptr;             // Ticked every 4 CPU cycles
     PPU* ppu = nullptr;                 // Also ticked every 4 CPU cycles
+    APU* apu = nullptr;
 	
     CPUDataFetcher fetcher;             // Fetches instructions and data
     InstructionExecutor executor;       // Executes instructions and manages stack
@@ -67,7 +68,7 @@ private:
     void tick_ppu();
 
     /**
-    * Raise an interrupt to be handled.
+    * Raises an interrupt to be handled.
     * 
     * @param interrupt: the type of interrupt to be raised
     */
@@ -75,14 +76,14 @@ private:
     void request_interrupt(InterruptType interrupt);
 
     /**
-    * Handle one interrupt, the first of VBlank, LCD Status,
+    * Handles one interrupt, the first of VBlank, LCD Status,
     * Timer, serial, or Joypad (in that order) that has been raised.
     */
     void handle_interrupts();
 
 
     /**
-    * Check if an interrupt has been raised, and if so, handle it.
+    * Checks if an interrupt has been raised, and if so, handles it.
     * 
     * @param address: the address of the interrupt handler
     * @param type: the type of interrupt to check for

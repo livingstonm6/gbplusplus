@@ -170,7 +170,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\APU.h" />
-    <ClInclude Include="core\AudioChannel.h" />
     <ClInclude Include="core\Bus.h" />
     <ClInclude Include="core\Cartridge.h" />
     <ClInclude Include="core\CPU.h" />

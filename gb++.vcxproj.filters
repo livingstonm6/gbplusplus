@@ -215,9 +215,6 @@
     <ClInclude Include="core\mbc\MBC3.h">
       <Filter>core\mbc\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core\AudioChannel.h">
-      <Filter>core\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="core\SquareWaveChannel.h">
       <Filter>core\Header Files</Filter>
     </ClInclude>

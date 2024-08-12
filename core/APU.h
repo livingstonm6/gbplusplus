@@ -1,8 +1,22 @@
 #pragma once
 #include "utility/Common.h"
-
+#include "SquareWaveChannel.h"
+#include "SDL.h"
+#include <vector>
+#include <queue>
+const int SAMPLE_RATE = 44100;
+const int BUFFER_SIZE = 1024;//4096;
 class APU
 {
+	int tick_count = 0;
+	int total_output_samples = 0;
+	int start_time = SDL_GetTicks();
+	int frame_sequencer = 0;
+
+
+	std::vector<float> front_buffer;
+	std::vector<float> back_buffer;
+
 	// Registers
 
 	u8 audio_master_control{};
@@ -15,12 +29,10 @@ class APU
 	u8 c1_volume_envelope{};
 	u8 c1_period_low{};
 	u8 c1_period_high_control{};
+	SquareWaveChannel c1;
 
 	// Channel 2 - Pulse
-	u8 c2_timer{};
-	u8 c2_volume_envelope{};
-	u8 c2_period_low{};
-	u8 c2_period_high_control{};
+	SquareWaveChannel c2;
 
 	// Channel 3 - Custom Wave
 	u8 c3_dac_enable{};
@@ -28,7 +40,7 @@ class APU
 	u8 c3_output_level{};
 	u8 c3_period_low{};
 	u8 c3_period_high_control{};
-	u8 c3_wave_pattern_ram[16];
+	u8 c3_wave_pattern_ram[16]{};
 
 	// Channel 4 - Noise
 	u8 c4_timer{};
@@ -36,26 +48,26 @@ class APU
 	u8 c4_frequency_randomness{};
 	u8 c4_control{};
 
-
-
 	// Methods
+
+	void gather_samples();
+
+	void output_audio();
+
+	SDL_AudioSpec spec;
 
 public:
 	void write(u16 address, u8 value);
 	u8 read(u16 address);
 
-	bool channel_enabled(AudioChannelType);
 	bool apu_enabled();
 
 	void tick();
 
-	// Constructor
 
-	APU() {
-		for (int i = 0; i < 16; i++) {
-			c3_wave_pattern_ram[i] = 0;
-		}
-	}
+	SDL_AudioDeviceID device;
+
+	APU(SDL_AudioDeviceID dev) : device(dev) {}
 
 };
 

@@ -69,13 +69,13 @@ void InstructionExecutor::proc_ld(CPUContext* cpu, Bus* bus)
 	if (cpu->writing_to_memory) {
 		cpu->cycles_to_increment++;
 		if (cpu->current_instruction.reg1 == RT_HL) {
-			bus->write(cpu->memory_destination, cpu->fetched_data);
+			bus->write(cpu->memory_destination, (u8)cpu->fetched_data);
 		}
 		else if (cpu->current_instruction.reg2 >= 10) { // 16 bit
 			bus->write16(cpu->memory_destination, cpu->fetched_data);
 		}
 		else {
-			bus->write(cpu->memory_destination, cpu->fetched_data);
+			bus->write(cpu->memory_destination, (u8)cpu->fetched_data);
 		}
 	}
 	else {
@@ -119,7 +119,7 @@ void InstructionExecutor::proc_nop(CPUContext* cpu, Bus* bus)
 void InstructionExecutor::proc_adc(CPUContext* cpu, Bus* bus)
 {
 	u16 data = cpu->fetched_data;
-	u8 a = cpu->reg.read(RT_A);
+	u8 a = (u8)cpu->reg.read(RT_A);
 	bool cf = cpu->reg.get_flag(CFT_C);
 	u16 result = data + a + cf;
 	cpu->reg.write(RT_A, result);
@@ -148,7 +148,7 @@ void InstructionExecutor::proc_ldh(CPUContext* cpu, Bus* bus)
 		cpu->reg.write(RT_A, data);
 	}
 	else {
-		bus->write(0xFF00 | cpu->memory_destination, cpu->fetched_data);
+		bus->write(0xFF00 | cpu->memory_destination, (u8)cpu->fetched_data);
 	}
 	cpu->cycles_to_increment++;
 }
@@ -224,7 +224,7 @@ void InstructionExecutor::proc_inc(CPUContext* cpu, Bus* bus)
 	if (cpu->current_instruction.reg1 == RT_HL && cpu->current_instruction.mode == AM_MR) {
 		u16 address = cpu->reg.read(RT_HL);
 		u16 val = bus->read(address) + 1;
-		bus->write(address, val);
+		bus->write(address, (u8)val);
 		z = (val & 0xFF) == 0;
 		h = (val & 0xF) == 0;
 	}
@@ -255,7 +255,7 @@ void InstructionExecutor::proc_dec(CPUContext* cpu, Bus* bus)
 	if (cpu->current_instruction.reg1 == RT_HL && cpu->current_instruction.mode == AM_MR) {
 		u16 address = cpu->reg.read(RT_HL);
 		u16 val = bus->read(address) - 1;
-		bus->write(address, val);
+		bus->write(address, (u8)val);
 		z = (val & 0xFF) == 0;
 		h = (val & 0xF) == 0xF;
 	}
@@ -359,7 +359,7 @@ void InstructionExecutor::proc_cp(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 {
-	u8 op = cpu->fetched_data;
+	u8 op = (u8)cpu->fetched_data;
 	RegisterType reg_type = u8_to_rt(op & 0b111);
 	u8 bit = (op >> 3) & 0b111;
 	u8 bit_op = (op >> 6) & 0b11;
@@ -394,7 +394,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 		// RST
 		reg_val &= ~(1 << bit);
 		if (reg_type == RT_HL) {
-			bus->write(cpu->reg.read(reg_type), reg_val);
+			bus->write(cpu->reg.read(reg_type), (u8)reg_val);
 		}
 		else {
 			cpu->reg.write(reg_type, reg_val);
@@ -406,7 +406,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 		// SET
 		reg_val |= (1 << bit);
 		if (reg_type == RT_HL) {
-			bus->write(cpu->reg.read(reg_type), reg_val);
+			bus->write(cpu->reg.read(reg_type), (u8)reg_val);
 		}
 		else {
 			cpu->reg.write(reg_type, reg_val);
@@ -445,7 +445,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 		reg_val = (reg_val >> 1) | (c << 7);
 
 		if (reg_type == RT_HL) {
-			bus->write(cpu->reg.read(reg_type), reg_val);
+			bus->write(cpu->reg.read(reg_type), (u8)reg_val);
 		}
 		else {
 			cpu->reg.write(reg_type, reg_val);
@@ -462,7 +462,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 		reg_val |= c;
 
 		if (reg_type == RT_HL) {
-			bus->write(cpu->reg.read(reg_type), reg_val);
+			bus->write(cpu->reg.read(reg_type), (u8)reg_val);
 		}
 		else {
 			cpu->reg.write(reg_type, reg_val);
@@ -479,7 +479,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 		reg_val |= (c << 7);
 
 		if (reg_type == RT_HL) {
-			bus->write(cpu->reg.read(reg_type), reg_val);
+			bus->write(cpu->reg.read(reg_type), (u8)reg_val);
 		}
 		else {
 			cpu->reg.write(reg_type, reg_val);
@@ -508,7 +508,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 		c = (reg_val >> 7);
 		reg_val = (reg_val << 1) & 0xFF;
 		if (reg_type == RT_HL) {
-			bus->write(cpu->reg.read(reg_type), reg_val);
+			bus->write(cpu->reg.read(reg_type), (u8)reg_val);
 		}
 		else {
 			cpu->reg.write(reg_type, reg_val);
@@ -526,7 +526,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 		reg_val = (reg_val >> 1) | (b7 << 7);
 
 		if (reg_type == RT_HL) {
-			bus->write(cpu->reg.read(reg_type), reg_val);
+			bus->write(cpu->reg.read(reg_type), (u8)reg_val);
 		}
 		else {
 			cpu->reg.write(reg_type, reg_val);
@@ -542,7 +542,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 		reg_val = (((reg_val & 0xF0) >> 4) | ((reg_val & 0xF) << 4)) & 0xFF;
 
 		if (reg_type == RT_HL) {
-			bus->write(cpu->reg.read(reg_type), reg_val);
+			bus->write(cpu->reg.read(reg_type), (u8)reg_val);
 		}
 		else {
 			cpu->reg.write(reg_type, reg_val);
@@ -560,7 +560,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 		reg_val >>= 1;
 
 		if (reg_type == RT_HL) {
-			bus->write(cpu->reg.read(reg_type), reg_val);
+			bus->write(cpu->reg.read(reg_type), (u8)reg_val);
 		}
 		else {
 			cpu->reg.write(reg_type, reg_val);
@@ -575,7 +575,7 @@ void InstructionExecutor::proc_cb(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_rrca(CPUContext* cpu, Bus* bus)
 {
-	u8 a = cpu->reg.read(RT_A);
+	u8 a = (u8)cpu->reg.read(RT_A);
 	bool b = a & 1;
 	a >>= 1;
 	a |= (b << 7);
@@ -585,8 +585,8 @@ void InstructionExecutor::proc_rrca(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_rlca(CPUContext* cpu, Bus* bus)
 {
-	u8 a = cpu->reg.read(RT_A);
-	bool cf = a >> 7;
+	u8 a = (u8)cpu->reg.read(RT_A);
+	int cf = a >> 7;
 	a = (a << 1) | cf;
 	cpu->reg.write(RT_A, a);
 	cpu->reg.set_flags(0, 0, 0, cf);
@@ -594,8 +594,8 @@ void InstructionExecutor::proc_rlca(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_rla(CPUContext* cpu, Bus* bus)
 {
-	u8 a = cpu->reg.read(RT_A);
-	bool cf = cpu->reg.get_flag(CFT_C);
+	u8 a = (u8)cpu->reg.read(RT_A);
+	int cf = cpu->reg.get_flag(CFT_C);
 	bool new_cf = (a >> 7) & 1;
 	a = (a << 1) | cf;
 	cpu->reg.write(RT_A, a);
@@ -604,7 +604,7 @@ void InstructionExecutor::proc_rla(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_rra(CPUContext* cpu, Bus* bus)
 {
-	u8 a = cpu->reg.read(RT_A);
+	u8 a = (u8)cpu->reg.read(RT_A);
 	bool cf = cpu->reg.get_flag(CFT_C);
 	bool new_c = a & 1;
 	a >>= 1;
@@ -625,7 +625,7 @@ void InstructionExecutor::proc_halt(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_daa(CPUContext* cpu, Bus* bus)
 {
-	u8 a = cpu->reg.read(RT_A);
+	u8 a = (u8)cpu->reg.read(RT_A);
 	bool cf = cpu->reg.get_flag(CFT_C);
 	bool n = cpu->reg.get_flag(CFT_N);
 	bool h = cpu->reg.get_flag(CFT_H);
@@ -675,7 +675,7 @@ void InstructionExecutor::proc_ei(CPUContext* cpu, Bus* bus)
 
 void InstructionExecutor::proc_cpl(CPUContext* cpu, Bus* bus)
 {
-	u8 a = cpu->reg.read(RT_A);
+	u8 a = (u8)cpu->reg.read(RT_A);
 	u8 complement = ~a;
 	cpu->reg.write(RT_A, complement);
 	cpu->reg.set_flags(-1, 1, 1, -1);

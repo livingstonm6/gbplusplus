@@ -1,10 +1,12 @@
 #include "CPU.h"
 
-void CPU::connect(Bus* bus_param, Timer* timer_param, PPU* ppu_param)
+void CPU::connect(Bus* bus_param, Timer* timer_param, PPU* ppu_param, APU* apu_param)
 {
 	bus = bus_param;
 	timer = timer_param;
 	ppu = ppu_param;
+	apu = apu_param;
+
 }
 
 void CPU::step() {
@@ -19,6 +21,7 @@ void CPU::step() {
 			increment_cycles(ctx.cycles_to_increment);
 			ctx.cycles_to_increment = 0;
 		}
+//		apu->tick();
 	}
 	else {
 		increment_cycles(1);
@@ -59,8 +62,10 @@ void CPU::increment_cycles(const int num_cycles)
 				request_interrupt(IT_TIMER);
 			}
 			tick_ppu();
+			apu->tick();
 		}
 		bus->tick_dma();	// DMA ticks every cpu cycle if active
+//		apu->tick();
 	}
 }
 

@@ -102,56 +102,25 @@ void SquareWaveChannel::tick_sweep()
 
 void SquareWaveChannel::write(u16 address, u8 value)
 {
-	// ch2
+	u16 register_index = (address & 0xF) % 5;
 
-	if ((address & 0xF) == 0x6) {
-		timer = value;
-		return;
-	}
-	else if ((address & 0xF) == 0x7) {
-		volume_envelope = value;
-		if ((value >> 3) == 0b11111) {
-			enabled = false;
-		}
-		return;
-	}
-	else if ((address & 0xF) == 0x8) {
-		period_low = value;
-		return;
-	}
-	else if ((address & 0xF) == 0x9) {
-		period_high_control = value;
-		if (value >> 7) {
-			trigger();
-		}
-		if ((value >> 6) & 1) {
-			length_enable();
-		}
-		return;
-	}
-
-
-	// ch1
-	if ((address & 0xF) == 0x0) {
+	switch (register_index) {
+	case 0:
 		sweep = value;
-		return;
-	}
-	else if ((address & 0xF) == 0x1) {
+		break;
+	case 1:
 		timer = value;
-		return;
-	}
-	else if ((address & 0xF) == 0x2) {
+		break;
+	case 2:
 		volume_envelope = value;
 		if ((value >> 3) == 0b11111) {
 			enabled = false;
 		}
-		return;
-	}
-	else if ((address & 0xF) == 0x3) {
+		break;
+	case 3:
 		period_low = value;
-		return;
-	}
-	else if ((address & 0xF) == 0x4) {
+		break;
+	case 4:
 		period_high_control = value;
 		if (value >> 7) {
 			trigger();
@@ -159,46 +128,32 @@ void SquareWaveChannel::write(u16 address, u8 value)
 		if ((value >> 6) & 1) {
 			length_enable();
 		}
-		return;
+		break;
+	default:
+		std::cerr << "Invalid SquareWaveChannel register index\n";
+		exit(-2);
 	}
-
-
 
 }
 
 u8 SquareWaveChannel::read(u16 address)
 {
+	u16 register_index = (address & 0xF) % 5;
 
-	// ch2
-	
-	if ((address & 0xF) == 0x6) {
-		return timer;
-	}
-	else if ((address & 0xF) == 0x7) {
-		return volume_envelope;
-	}
-	else if ((address & 0xF) == 0x8) {
-		return period_low;
-	}
-	else if ((address & 0xF) == 0x9) {
-		return period_high_control;
-	}
-
-	// ch1
-	if ((address & 0xF) == 0x0) {
+	switch (register_index) {
+	case 0:
 		return sweep;
-	}
-	else if ((address & 0xF) == 0x1) {
+	case 1:
 		return timer;
-	}
-	else if ((address & 0xF) == 0x2) {
+	case 2:
 		return volume_envelope;
-	}
-	else if ((address & 0xF) == 0x3) {
+	case 3:
 		return period_low;
-	}
-	else if ((address & 0xF) == 0x4) {
+	case 4:
 		return period_high_control;
+	default:
+		std::cerr << "Invalid SquareWaveChannel register index\n";
+		exit(-2);
 	}
 }
 

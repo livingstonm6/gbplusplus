@@ -300,7 +300,9 @@ void Motherboard::run_cpu()
 	int current_frame = 0;
 	int step_count = 0;
 	int start_time = SDL_GetTicks();
-	double frame_time_target = (double)1000 / 60;
+	//double frame_time_target = (double)1000 / 60;
+	double frame_time_target = 0; // remove frame rate cap
+
 
 	cpu_running = true;
 	while (cpu_running) {
@@ -318,11 +320,11 @@ void Motherboard::run_cpu()
 				current_frame++;
 			}
 
-			start_time = SDL_GetTicks();
 			update_window(screen, texture, renderer);
 			if (show_debug_window) {
 				update_debug_window(debug_screen, debug_texture, debug_renderer);
 			}
+			start_time = SDL_GetTicks();
 			step_count = 0;
 			cartridge.save_battery();
 		}
@@ -375,6 +377,18 @@ void Motherboard::render_gui()
 				if (ImGui::MenuItem("Reset")) {
 					stop_cpu = true;
 					start_cpu = true;
+				}
+			}
+
+			if (ImGui::BeginMenu("Frame Rate Cap")) {
+				if (ImGui::MenuItem("60 (1x)")) {
+					ppu.set_framerate_cap(60);
+				}
+				if (ImGui::MenuItem("120 (2x)")) {
+					ppu.set_framerate_cap(120);
+				}
+				if (ImGui::MenuItem("Unlocked")) {
+					ppu.set_framerate_cap(0);
 				}
 			}
 

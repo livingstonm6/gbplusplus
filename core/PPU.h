@@ -14,7 +14,8 @@ class PPU
 	int LINES_PER_FRAME = 154;
 	int TICKS_PER_LINE = 456;
 
-	double frame_time_target = (double)1000 / 60;
+	//double frame_time_target = (double)1000 / 60;
+	double frame_time_target = 0;
 	long prev_frame_time{};
 	long start_timer{};
 	long frame_count{};
@@ -61,5 +62,6 @@ public:
 	void mode_xfer(CPUContext*);
 	void mode_vblank(CPUContext*);
 	void mode_hblank(CPUContext*);
+	void set_framerate_cap(int framerate);
 };
 

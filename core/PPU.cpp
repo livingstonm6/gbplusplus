@@ -301,7 +301,7 @@ void PPU::mode_hblank(CPUContext* cpu)
 			u32 end = SDL_GetTicks();
 			u32 frame_time = end - prev_frame_time;
 
-			// 60 FPS framerate cap
+			// framerate cap
 			if (frame_time < frame_time_target) {
 				SDL_Delay((frame_time_target - frame_time));
 			}
@@ -323,4 +323,15 @@ void PPU::mode_hblank(CPUContext* cpu)
 		line_ticks = 0;
 
 	}
+}
+
+void PPU::set_framerate_cap(int framerate)
+{
+	if (framerate == 0) {
+		frame_time_target = 0;
+		return;
+	}
+	
+	frame_time_target = (double)1000 / framerate;
+
 }

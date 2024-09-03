@@ -32,19 +32,10 @@ class APU
 	SquareWaveChannel c2;
 
 	// Channel 3 - Custom Wave
-	u8 c3_dac_enable{};
-	u8 c3_timer{};
-	u8 c3_output_level{};
-	u8 c3_period_low{};
-	u8 c3_period_high_control{};
-	u8 c3_wave_pattern_ram[16]{};
 	CustomWaveChannel c3;
 
 	// Channel 4 - Noise
-	u8 c4_timer{};
-	u8 c4_volume_envelope{};
-	u8 c4_frequency_randomness{};
-	u8 c4_control{};
+	NoiseWaveChannel c4;
 
 	// Methods
 	void gather_samples();

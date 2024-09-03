@@ -3,7 +3,7 @@
 
 void APU::gather_samples()
 {
-	float sample = c1.get_sample() + c2.get_sample() + c3.get_sample();
+	float sample = c1.get_sample() + c2.get_sample() + c3.get_sample() + c4.get_sample();
 	back_buffer.push_back(sample);
 	if (back_buffer.size() > BUFFER_SIZE) {
 		back_buffer.erase(back_buffer.begin());
@@ -47,17 +47,8 @@ void APU::write(u16 address, u8 value)
 	else if (address < 0xFF20) {
 		c3.write(address, value);
 	}
-	else if (address == 0xFF20) {
-		c4_timer = value;
-	}
-	else if (address == 0xFF21) {
-		c4_volume_envelope = value;
-	}
-	else if (address == 0xFF22) {
-		c4_frequency_randomness = value;
-	}
-	else if (address == 0xFF23) {
-		c4_control = value;
+	else if (address < 0xFF24) {
+		c4.write(address, value);
 	}
 	else if (address == 0xFF24) {
 		master_volume_vin_panning = value;
@@ -85,17 +76,8 @@ u8 APU::read(u16 address)
 	else if (address < 0xFF20) {
 		return c3.read(address);
 	}
-	else if (address == 0xFF20) {
-		return c4_timer;
-	}
-	else if (address == 0xFF21) {
-		return c4_volume_envelope;
-	}
-	else if (address == 0xFF22) {
-		return c4_frequency_randomness;
-	}
-	else if (address == 0xFF23) {
-		return c4_control;
+	else if (address < 0xFF24) {
+		return c4.read(address);
 	}
 	else if (address == 0xFF24) {
 		return master_volume_vin_panning;
@@ -127,6 +109,7 @@ void APU::tick()
 	c1.tick();
 	c2.tick();
 	c3.tick();
+	c4.tick();
 	if (tick_count % 95 == 0) { // ~44100hz sample rate
 		gather_samples();
 		if (back_buffer.size() == BUFFER_SIZE) {
@@ -144,10 +127,12 @@ void APU::tick()
 			c1.tick_length();
 			c2.tick_length();
 			c3.tick_length();
+			c4.tick_length();
 		}
 		if (frame_sequencer == 7) {
 			c1.tick_envelope();
 			c2.tick_envelope();
+			c4.tick_envelope();
 		}
 		if (frame_sequencer == 2 || frame_sequencer == 6) {
 			c1.tick_sweep();

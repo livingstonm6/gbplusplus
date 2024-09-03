@@ -123,6 +123,12 @@
     <ClCompile Include="core\CPUDataFetcher.cpp">
       <Filter>core\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CustomWaveChannel.cpp">
+      <Filter>core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NoiseWaveChannel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -220,6 +226,12 @@
     </ClInclude>
     <ClInclude Include="core\CPUDataFetcher.h">
       <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomWaveChannel.h">
+      <Filter>core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NoiseWaveChannel.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

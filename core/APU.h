@@ -1,16 +1,18 @@
 #pragma once
 #include "utility/Common.h"
 #include "SquareWaveChannel.h"
+#include "..\CustomWaveChannel.h"
+#include "..\NoiseWaveChannel.h"
 #include "SDL.h"
 #include <vector>
 #include <queue>
+
 const int SAMPLE_RATE = 44100;
 const int BUFFER_SIZE = 1024;//4096;
 class APU
 {
 	int tick_count = 0;
 	int total_output_samples = 0;
-	int start_time = SDL_GetTicks();
 	int frame_sequencer = 0;
 
 
@@ -24,11 +26,6 @@ class APU
 	u8 master_volume_vin_panning{};
 
 	// Channel 1 - Pulse w/ Sweep
-	u8 c1_sweep{};
-	u8 c1_timer{};
-	u8 c1_volume_envelope{};
-	u8 c1_period_low{};
-	u8 c1_period_high_control{};
 	SquareWaveChannel c1;
 
 	// Channel 2 - Pulse
@@ -41,6 +38,7 @@ class APU
 	u8 c3_period_low{};
 	u8 c3_period_high_control{};
 	u8 c3_wave_pattern_ram[16]{};
+	CustomWaveChannel c3;
 
 	// Channel 4 - Noise
 	u8 c4_timer{};
@@ -49,12 +47,8 @@ class APU
 	u8 c4_control{};
 
 	// Methods
-
 	void gather_samples();
-
 	void output_audio();
-
-	SDL_AudioSpec spec;
 
 public:
 	void write(u16 address, u8 value);

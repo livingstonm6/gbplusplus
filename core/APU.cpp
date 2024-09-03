@@ -3,7 +3,7 @@
 
 void APU::gather_samples()
 {
-	float sample = c1.get_sample() + c2.get_sample();
+	float sample = c1.get_sample() + c2.get_sample() + c3.get_sample();
 	back_buffer.push_back(sample);
 	if (back_buffer.size() > BUFFER_SIZE) {
 		back_buffer.erase(back_buffer.begin());
@@ -44,20 +44,8 @@ void APU::write(u16 address, u8 value)
 	else if (address < 0xFF1A) {
 		c2.write(address, value);
 	}
-	else if (address == 0xFF1A) {
-		c3_dac_enable = value;
-	}
-	else if (address == 0xFF1B) {
-		c3_timer = value;
-	}
-	else if (address == 0xFF1C) {
-		c3_output_level = value;
-	}
-	else if (address == 0xFF1D) {
-		c3_period_low = value;
-	}
-	else if (address == 0xFF1E) {
-		c3_period_high_control = value;
+	else if (address < 0xFF20) {
+		c3.write(address, value);
 	}
 	else if (address == 0xFF20) {
 		c4_timer = value;
@@ -81,7 +69,7 @@ void APU::write(u16 address, u8 value)
 		audio_master_control = (audio_master_control & 0b1111111) | (value & 0b10000000);
 	}
 	else if (0xFF30 <= address <= 0xFF3F) {
-		c3_wave_pattern_ram[address & 0xF] = value;
+		c3.write(address, value);
 	}
 }
 
@@ -94,20 +82,8 @@ u8 APU::read(u16 address)
 	else if (address < 0xFF1A) {
 		return c2.read(address);
 	}
-	else if (address == 0xFF1A) {
-		return c3_dac_enable;
-	}
-	else if (address == 0xFF1B) {
-		return c3_timer;
-	}
-	else if (address == 0xFF1C) {
-		return c3_output_level;
-	}
-	else if (address == 0xFF1D) {
-		return c3_period_low;
-	}
-	else if (address == 0xFF1E) {
-		return c3_period_high_control;
+	else if (address < 0xFF20) {
+		return c3.read(address);
 	}
 	else if (address == 0xFF20) {
 		return c4_timer;
@@ -131,7 +107,7 @@ u8 APU::read(u16 address)
 		return (apu_enabled() << 7) | (c2.is_enabled() << 1);
 	}
 	else if (0xFF30 <= address <= 0xFF3F) {
-		return c3_wave_pattern_ram[address & 0xF];
+		return c3.read(address);
 	}
 
 }
@@ -150,6 +126,7 @@ void APU::tick()
 	tick_count++;
 	c1.tick();
 	c2.tick();
+	c3.tick();
 	if (tick_count % 95 == 0) { // ~44100hz sample rate
 		gather_samples();
 		if (back_buffer.size() == BUFFER_SIZE) {
@@ -166,6 +143,7 @@ void APU::tick()
 		if (frame_sequencer % 2 == 0) {
 			c1.tick_length();
 			c2.tick_length();
+			c3.tick_length();
 		}
 		if (frame_sequencer == 7) {
 			c1.tick_envelope();

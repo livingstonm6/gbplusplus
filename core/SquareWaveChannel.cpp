@@ -1,5 +1,6 @@
 #include "SquareWaveChannel.h"
 #include <iostream>
+#include <math.h>
 
 void SquareWaveChannel::trigger()
 {
@@ -8,6 +9,7 @@ void SquareWaveChannel::trigger()
 	period_counter = get_period_value();
 	duty_cycle_position = 0;
 	envelope_counter = 0;
+	sweep_pace = (sweep >> 4) & 0b111;
 
 }
 
@@ -97,6 +99,43 @@ void SquareWaveChannel::tick_envelope()
 
 void SquareWaveChannel::tick_sweep()
 {
+	if (!enabled || sweep_pace == 0) {
+		return;
+	}
+
+	sweep_counter++;
+
+	if (sweep_counter % sweep_pace != 0) {
+		return;
+	}
+
+	sweep_pace = (sweep >> 4) & 0b111;
+
+	int step = sweep & 0b111;
+
+	int current_period = get_period_value();
+
+	int decreasing = (sweep >> 3) & 1;
+
+	int new_period = current_period;
+
+	if (decreasing) {
+		new_period -= current_period / pow(2, step);
+	}
+	else {
+		int temp = new_period + (current_period / pow(2, step));
+		if (temp > 0x7FF) {
+			enabled = false;
+			return;
+		}
+		new_period = temp;
+	}
+
+	period_low = new_period & 0xFF;
+
+	period_high_control = (period_high_control >> 3) << 3;
+	period_high_control |= (new_period >> 8);
+
 
 }
 
@@ -159,6 +198,7 @@ u8 SquareWaveChannel::read(u16 address)
 
 float SquareWaveChannel::get_sample()
 {
+
 	if (!enabled) {
 		return 0.0f;
 	}

@@ -12,6 +12,10 @@ class SquareWaveChannel
 	int length_timer = 0;
 	int tick_counter = 0;
 	int envelope_counter = 0;
+	bool sweep_enabled = false;
+	int sweep_pace = 0;
+	int sweep_counter = 0;
+
 
 	std::vector<int> duty_cycle1 = { 1, 1, 1, 1, 1, 1, 1, 0 };
 	std::vector<int> duty_cycle2 = { 0, 1, 1, 1, 1, 1, 1, 0 };
@@ -46,8 +50,5 @@ public:
 	u8 read(u16 address);
 	float get_sample();
 	bool is_enabled();
-
-	std::vector<float> sample_buffer;
-
 
 };

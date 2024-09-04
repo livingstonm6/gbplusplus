@@ -9,13 +9,13 @@ It runs many commercial games and passes many popular test programs.
 Currently only Windows is supported.
 
 # Roadmap
-2. Implement Game Boy Color support.
-3. Improve audio quality.
-4. Implement remaining MBCs (only MBC1 and MBC3 are functional).
-5. Implement additional renderers.
-6. Implement interactive debugger.
-7. Improve quality of life (open recent files, save states, etc.).
-8. Linux support.
+1. Implement Game Boy Color support.
+2. Improve audio quality.
+3. Implement remaining MBCs (only MBC1 and MBC3 are functional).
+4. Implement additional renderers.
+5. Implement interactive debugger.
+6. Improve quality of life (open recent files, save states, etc.).
+7. Linux support.
 
 # Build Instructions
 1. Clone this repository.

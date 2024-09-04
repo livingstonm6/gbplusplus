@@ -32,6 +32,9 @@ u8 Bus::read(u16 address) {
 	else if (0xFF40 <= address && address < 0xFF4C) {
 		return lcd->read(address);
 	}
+	else if (address == 0xFF4D) {
+		return 0xFF;
+	}
 	else {
 		return memory[address];
 	}

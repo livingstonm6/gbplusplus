@@ -326,7 +326,9 @@ void Motherboard::run_cpu()
 			}
 			start_time = SDL_GetTicks();
 			step_count = 0;
-			cartridge.save_battery();
+			if (current_frame % 120 == 0) {
+				cartridge.save_battery();
+			}
 		}
 	}
 }

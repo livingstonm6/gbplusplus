@@ -21,11 +21,6 @@ u8 PPUMemory::oam_read(u16 address)
 	};
 }
 
-u8 PPUMemory::vram_read(u16 address)
-{
-	return vram[address - 0x8000];
-}
-
 void PPUMemory::oam_write(u16 address, u8 value)
 {
 	if (address >= 0xFE00) {
@@ -35,9 +30,3 @@ void PPUMemory::oam_write(u16 address, u8 value)
 	u8 byte_index = address % 4;
 	oam_ram[oam_index].update(value, byte_index);
 }
-
-void PPUMemory::vram_write(u16 address, u8 value)
-{
-	vram[address - 0x8000] = value;
-}
-

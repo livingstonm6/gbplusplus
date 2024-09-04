@@ -1,72 +1,6 @@
 #include "Bus.h"
 #include <iostream>
 
-u8 RAM::read_wram(u16 address) {
-	address -= 0xC000;
-	return wram[address];
-}
-
-void RAM::write_wram(u16 address, u8 value) {
-	address -= 0xC000;
-	wram[address] = value;
-}
-
-u8 RAM::read_hram(u16 address) {
-	address -= 0xFF80;
-	return hram[address];
-}
-
-void RAM::write_hram(u16 address, u8 value) {
-	address -= 0xFF80;
-	hram[address] = value;
-}
-
-u8 IORegisters::read(u16 address)
-{
-
-	if (address == 0xFF00) {
-		return joypad.read();
-	}
-	else if (address == 0xFF01) {
-		return serial_data[0];
-	}
-	else if (address == 0xFF02) {
-		return serial_data[1];
-	}
-	else if (address == 0xFF4D) {
-		return 0xFF;
-	}
-	else if (address == 0xFF0F) {
-		return interrupt_flag;
-	}
-	else if (address == 0xFFFF) {
-		return interrupt_enable;
-	}
-	//std::cout << "Error reading IORegister: 0x" << std::uppercase << std::hex << address << "\n";
-	//exit(-1);
-	return 0;
-}
-
-void IORegisters::write(u16 address, u8 value) {
-
-	if (address == 0xFF00) {
-		joypad.write(value);
-	}
-	else if (address == 0xFF01) {
-		serial_data[0] = value;
-	}
-	else if (address == 0xFF02) {
-		serial_data[1] = value;
-	}
-	else if (address == 0xFF0F) {
-		interrupt_flag = value;
-	}
-	else if (address == 0xFFFF) {
-		interrupt_enable = value;
-	}
-
-}
-
 void Bus::connect(PPUMemory* p, LCD* l, Cartridge* c, Timer* t, APU* a) {
 	ppu_memory = p;
 	lcd = l;
@@ -77,56 +11,29 @@ void Bus::connect(PPUMemory* p, LCD* l, Cartridge* c, Timer* t, APU* a) {
 }
 
 u8 Bus::read(u16 address) {
-	if (address < 0x4000) {
+	if (address == 0xFF00) {
+		return joypad.read();
+	}
+	else if (address < 0x8000 || (0xA000 <= address && address < 0xC000)) {
 		return cartridge->read(address);
 	}
-	else if (address < 0x8000) {
-		return cartridge->read(address);
-	}
-	else if (address < 0xA000) {
-		return ppu_memory->vram_read(address);
-	}
-	else if (address < 0xC000) {
-		return cartridge->read(address);
-	}
-	else if (address < 0xE000) {
-		return ram.read_wram(address);
-	}
-	else if (address < 0xFE00){
-		return 0;
-	}
-	else if (address < 0xFE9F) {
+	else if (0xFE00 <= address && address < 0xFE9F) {
 		if (dma_active) {
 			return 0xFF;
 		}
 		return ppu_memory->oam_read(address);
 	}
-	else if (address < 0xFF00) {
-		return 0;
-	}
-	else if (address < 0xFF04) {
-		return io_reg.read(address);
-	}
-	else if (address < 0xFF08) {
+	else if (0xFF04 <= address && address < 0xFF08) {
 		return timer->read(address);
 	}
-	else if (address < 0xFF10) {
-		return io_reg.read(address);
-	}
-	else if (address < 0xFF40) {
+	else if (0xFF10 <= address && address < 0xFF40) {
 		return apu->read(address);
 	}
-	else if (address < 0xFF4C) {
+	else if (0xFF40 <= address && address < 0xFF4C) {
 		return lcd->read(address);
 	}
-	else if (address < 0xFF80) {
-		return io_reg.read(address);
-	}
-	else if (address == 0xFFFF) {
-		return io_reg.read(address);
-	}
 	else {
-		return ram.read_hram(address);
+		return memory[address];
 	}
 }
 
@@ -139,60 +46,39 @@ u16 Bus::read16(u16 address)
 
 void Bus::write(u16 address, u8 value) {
 
-	if (address < 0x8000) {
-		cartridge->write(address, value);
-	}
-	else if (address < 0xA000) {
-		ppu_memory->vram_write(address, value);
-	}
-	else if (address < 0xC000) {
-		cartridge->write(address, value);
-	}
-	else if (address < 0xE000) {
-		ram.write_wram(address, value);
-	}
-	else if (address < 0xFE00) {
+	if (address >= 0xFF4C) {
+		memory[address] = value;
 		return;
 	}
-	else if (address < 0xFEA0) {
+
+	if (address == 0xFF00) {
+		joypad.write(value);
+	}
+	else if (address < 0x8000 || (0xA000 <= address && address < 0xC000)) {
+		cartridge->write(address, value);
+	}
+	else if (0xFE00 <= address && address < 0xFEA0) {
 		if (dma_active) {
 			return;
 		}
 		ppu_memory->oam_write(address, value);
 	}
-	else if (address < 0xFF00) {
-		return;
-	}
-	else if (address < 0xFF04) {
-		io_reg.write(address, value);
-	}
-	else if (address < 0xFF08) {
+	else if (0xFF04 <= address && address < 0xFF08) {
 		timer->write(address, value);
 	}
-	else if (address < 0xFF10) {
-		io_reg.write(address, value);
-	}
-	else if (address < 0xFF40) {
+	else if (0xFF10 <= address && address < 0xFF40) {
 		apu->write(address, value);
-	}
-	else if (address < 0xFF46) {
-		lcd->write(address, value);
 	}
 	else if (address == 0xFF46) {
 		dma_start(value);
 	}
-	else if (address < 0xFF4C) {
+	else if (0xFF40 <= address && address < 0xFF4C) {
 		lcd->write(address, value);
 	}
-	else if (address < 0xFF80) {
-		io_reg.write(address, value);
-	}
-	else if (address == 0xFFFF) {
-		io_reg.write(address, value);
-	}
 	else {
-		ram.write_hram(address, value);
+		memory[address] = value;
 	}
+
 }
 
 void Bus::write16(u16 address, u16 value)
@@ -252,28 +138,28 @@ void Bus::update_joypad(JoypadInputType input_type, bool pressed)
 
 	switch (input_type) {
 	case JIT_SELECT:
-		io_reg.joypad.select = !pressed;
+		joypad.select = !pressed;
 		break;
 	case JIT_START:
-		io_reg.joypad.start = !pressed;
+		joypad.start = !pressed;
 		break;
 	case JIT_A:
-		io_reg.joypad.a = !pressed;
+		joypad.a = !pressed;
 		break;
 	case JIT_B:
-		io_reg.joypad.b = !pressed;
+		joypad.b = !pressed;
 		break;
 	case JIT_LEFT:
-		io_reg.joypad.left = !pressed;
+		joypad.left = !pressed;
 		break;
 	case JIT_RIGHT:
-		io_reg.joypad.right = !pressed;
+		joypad.right = !pressed;
 		break;
 	case JIT_DOWN:
-		io_reg.joypad.down = !pressed;
+		joypad.down = !pressed;
 		break;
 	case JIT_UP:
-		io_reg.joypad.up = !pressed;
+		joypad.up = !pressed;
 		break;
 	}
 }

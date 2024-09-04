@@ -7,44 +7,18 @@
 #include "APU.h"
 #include "PPUMemory.h"
 
-class RAM
-{
-private:
-	u8 wram[0x2000];
-	u8 hram[0x80];
-public:
-	u8 read_wram(u16 address);
-	u8 read_hram(u16 address);
-	
-	void write_wram(u16 address, u8 value);
-	void write_hram(u16 address, u8 value);
-};
-
-class IORegisters
-{
-public:
-	Joypad joypad;
-
-	u8 serial_data[2];
-	u8 interrupt_enable;
-	u8 interrupt_flag;
-
-	u8 read(u16 address);
-	void write(u16 address, u8 value);
-};
-
 class Bus
 {
+	Joypad joypad;
 	bool dma_active{};
 	u8 dma_byte{};
 	u8 dma_value{};
 	u8 dma_start_delay{};
 
-	IORegisters io_reg{};
 	std::vector<char> debug_message{};
 
+	u8 memory[0x10000]{};
 
-	RAM ram{};
 	PPUMemory* ppu_memory = nullptr;
 	LCD* lcd = nullptr;
 	Cartridge* cartridge = nullptr;
